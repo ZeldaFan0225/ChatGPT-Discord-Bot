@@ -47,6 +47,7 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
+        if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
         const messages = []
 
@@ -101,6 +102,7 @@ export default class extends Command {
             }
         }
 
+        if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
         const res = await ctx.interaction.editReply(payload)
 
         if(ctx.client.config.dev) {

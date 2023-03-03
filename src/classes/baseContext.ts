@@ -14,4 +14,9 @@ export class BaseContext{
         this.client = options.client
         this.database = options.database
     }
+
+    get is_staff() {
+        if(this.interaction.inCachedGuild()) return !!this.interaction.member?.roles.cache.some(r => this.client.config.staff_roles?.find(ro => ro === r.id))
+        else return false
+    }
 }

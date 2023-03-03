@@ -3,7 +3,9 @@
         "926795718222553098"
     ],
     "dev": true,
+    "global_user_cooldown": 60000,
     "generation_parameters": {
+        "moderate_prompts": true,
         "system_instruction": "You are a useful helper called 'ChatGPT Discord by Zelda_Fan' and your knowledge cutoff is in 2021.",
         "temperature": 1,
         "top_p": 1,

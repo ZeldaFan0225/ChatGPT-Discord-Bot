@@ -114,6 +114,8 @@ export interface OpenAIModerationResponse {
 export interface Config {
     staff_roles?: string[],
     dev?: boolean,
+    global_user_cooldown?: number,
+    moderate_prompts?: boolean,
     generation_parameters?: {
         system_instruction?: string,
         temperature?: number,

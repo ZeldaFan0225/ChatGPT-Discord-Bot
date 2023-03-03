@@ -46,6 +46,10 @@ client.on("ready", async () => {
     client.user?.setPresence({activities: [{type: ActivityType.Listening, name: "to ChatGPT screaming at your requests"}], status: PresenceUpdateStatus.DoNotDisturb, })
     console.log(`Ready`)
     await client.application?.commands.set([...client.commands.createPostBody(), ...client.contexts.createPostBody()]).catch(console.error)
+
+    setInterval(async () => {
+        await connection.query("DELETE FROM chats WHERE created_at <= CURRENT_TIMESTAMP - interval '1 month'").catch(console.error)
+    }, 1000 * 60 * 60)
 })
 
 client.on("interactionCreate", async (interaction) => {

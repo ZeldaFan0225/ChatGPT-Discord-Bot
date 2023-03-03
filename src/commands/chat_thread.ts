@@ -14,12 +14,14 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
+        if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
         const messages = []
 
         if(ctx.interaction.channel?.isThread()) {
             const data = await ctx.database.query<ChatData>("SELECT * FROM chats WHERE id=$1", [ctx.interaction.channelId]).catch(console.error)
-            if(!data?.rowCount) return ctx.error({error: "You can't use this command in threads"})
+            if(!data?.rowCount) return ctx.error({error: "Unable to find conversation.\nUse this command in a non-thread channel to start a new conversation."})
+            if(data.rows[0]!.user_id !== ctx.interaction.user.id) return ctx.error({error: "Only the initial user can use this command in this thread."})
 
             messages.push(...data.rows[0]!.messages)
             messages.push({
@@ -46,6 +48,7 @@ export default class extends Command {
 
             if(ctx.client.config.dev) console.log(ai_data)
 
+            if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
             const reply = await ctx.interaction.editReply({
                 embeds: [
                     new EmbedBuilder({
@@ -120,6 +123,7 @@ export default class extends Command {
         const data: OpenAIChatCompletionResponse = await openai_req.send().then(res => res.json())
 
         if(ctx.client.config.dev) console.log(data)
+        if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
 
         const thread = await reply.startThread({
             name: `ChatGPT Chat ${ctx.interaction.user.tag}`,

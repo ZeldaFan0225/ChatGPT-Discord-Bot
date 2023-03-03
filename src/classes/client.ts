@@ -11,7 +11,7 @@ export class ChatGPTBotClient extends Client {
 	contexts: Store<StoreTypes.CONTEXTS>;
 	modals: Store<StoreTypes.MODALS>;
     config: Config
-	cache: SuperMap<string, any>
+	cooldown: SuperMap<string, any>
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -20,7 +20,7 @@ export class ChatGPTBotClient extends Client {
 		this.contexts = new Store<StoreTypes.CONTEXTS>({files_folder: "/contexts", load_classes_on_init: false, storetype: StoreTypes.CONTEXTS});
 		this.modals = new Store<StoreTypes.MODALS>({files_folder: "/modals", load_classes_on_init: false, storetype: StoreTypes.MODALS});
         this.config = {}
-		this.cache = new SuperMap({
+		this.cooldown = new SuperMap({
 			intervalTime: 1000
 		})
         this.loadConfig()
@@ -40,6 +40,7 @@ export class ChatGPTBotClient extends Client {
 	}
 
 	async checkIfPromptGetsFlagged(message: string): Promise<boolean> {
+		if(!this.config.moderate_prompts) return false;
 		const openai_req = Centra(`https://api.openai.com/v1/moderations`, "POST")
         .body({
             input: message
