@@ -124,5 +124,11 @@ export interface Config {
         presence_penalty?: number,
         frequency_penalty?: number,
         max_input_chars?: number
+    },
+    logs?: {
+        enabled?: boolean,
+        directory?: string,
+        plain?: boolean,
+        csv?: boolean
     }
 }

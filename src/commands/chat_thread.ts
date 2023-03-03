@@ -1,7 +1,6 @@
 import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
-import { ChatData, OpenAIChatCompletionResponse } from "../types";
-import Centra from "centra";
+import { ChatData } from "../types";
 import { EmbedBuilder } from "@discordjs/builders";
 import { AttachmentBuilder, Colors } from "discord.js";
 
@@ -31,20 +30,7 @@ export default class extends Command {
 
             await ctx.interaction.deferReply()
 
-            const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
-            .body({
-                model: "gpt-3.5-turbo",
-                messages,
-                temperature: ctx.client.config.generation_parameters?.temperature,
-                top_p: ctx.client.config.generation_parameters?.top_p,
-                frequency_penalty: ctx.client.config.generation_parameters?.frequency_penalty,
-                presence_penalty: ctx.client.config.generation_parameters?.presence_penalty,
-                max_tokens: ctx.client.config.generation_parameters?.max_tokens === -1 ? undefined : ctx.client.config.generation_parameters?.max_tokens,
-                user: ctx.interaction.user.id
-            }, "json")
-            .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
-            
-            const ai_data: OpenAIChatCompletionResponse = await openai_req.send().then(res => res.json())
+            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id)
 
             if(ctx.client.config.dev) console.log(ai_data)
 
@@ -107,20 +93,7 @@ export default class extends Command {
             fetchReply: true
         })
 
-        const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
-        .body({
-            model: "gpt-3.5-turbo",
-            messages,
-            temperature: ctx.client.config.generation_parameters?.temperature,
-            top_p: ctx.client.config.generation_parameters?.top_p,
-            frequency_penalty: ctx.client.config.generation_parameters?.frequency_penalty,
-            presence_penalty: ctx.client.config.generation_parameters?.presence_penalty,
-            max_tokens: ctx.client.config.generation_parameters?.max_tokens === -1 ? undefined : ctx.client.config.generation_parameters?.max_tokens,
-            user: ctx.interaction.user.id
-        }, "json")
-        .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
-
-        const data: OpenAIChatCompletionResponse = await openai_req.send().then(res => res.json())
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id)
 
         if(ctx.client.config.dev) console.log(data)
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)

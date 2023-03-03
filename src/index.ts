@@ -31,6 +31,10 @@ const client = new ChatGPTBotClient({
 
 client.login(process.env["DISCORD_TOKEN"])
 
+if(client.config.logs?.enabled) {
+    client.initLogDir()
+}
+
 
 client.on("ready", async () => {
     await connection.connect().then(async () => {

@@ -1,9 +1,8 @@
 import { AttachmentBuilder, Colors, EmbedBuilder, SlashCommandBuilder, SlashCommandStringOption, SlashCommandSubcommandBuilder } from "discord.js";
 import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
-import { Config, OpenAIChatCompletionResponse } from "../types";
-import {readFileSync} from "fs"
-import Centra from "centra";
+import { Config } from "../types";
+import { readFileSync } from "fs";
 
 const config: Config = JSON.parse(readFileSync("config.json", "utf-8"))
 
@@ -62,20 +61,7 @@ export default class extends Command {
 
         if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
-        const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
-        .body({
-            model: "gpt-3.5-turbo",
-            messages,
-            temperature: ctx.client.config.generation_parameters?.temperature,
-            top_p: ctx.client.config.generation_parameters?.top_p,
-            frequency_penalty: ctx.client.config.generation_parameters?.frequency_penalty,
-            presence_penalty: ctx.client.config.generation_parameters?.presence_penalty,
-            max_tokens: ctx.client.config.generation_parameters?.max_tokens === -1 ? undefined : ctx.client.config.generation_parameters?.max_tokens,
-            user: ctx.interaction.user.id
-        }, "json")
-        .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
-
-        const data: OpenAIChatCompletionResponse = await openai_req.send().then(res => res.json())
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id)
 
         if(ctx.client.config.dev) console.log(data)
 
