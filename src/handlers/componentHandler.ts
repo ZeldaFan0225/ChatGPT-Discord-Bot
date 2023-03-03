@@ -20,7 +20,7 @@ export async function handleComponents(interaction: ButtonInteraction | AnySelec
         }
     }
 
-    if(command.staff_only && !(Array.isArray(interaction.member?.roles) ? interaction.member?.roles.some(r => client.config.staff_roles?.includes(r)) : interaction.member?.roles.cache.some(r => client.config.staff_roles?.includes(r.id))))
+    if(command.staff_only && !context.is_staff)
     return await context.error({
         error: "You are not staff"
     })

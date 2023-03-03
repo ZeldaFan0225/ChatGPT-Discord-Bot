@@ -2,6 +2,8 @@
     "staff_roles": [
         "926795718222553098"
     ],
+    "staff_users": [
+    ],
     "dev": true,
     "global_user_cooldown": 60000,
     "max_thread_folowup_length": 5,
