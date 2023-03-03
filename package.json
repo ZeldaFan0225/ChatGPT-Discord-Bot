@@ -1,10 +1,12 @@
 {
-  "name": "stable_horde",
-  "version": "1.2.1",
+  "name": "chatgpt_discord_bot",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "deploy": "npx tsc -p . && node ."
+    "deploy": "node cleanup.js && npm i && npx tsc -p . && node .",
+    "update": "node cleanup.js && npm update && npx tsc -p . && node .",
+    "generate-key": "npx tsc -p . && node dist/generate_salt.js"
   },
   "repository": {
     "type": "git",

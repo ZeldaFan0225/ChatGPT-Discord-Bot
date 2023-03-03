@@ -1,0 +1,34 @@
+# Configuration
+
+Here you can see an explanation of what which option does
+
+```
+{
+    "staff_roles": The roles which your staff have. This will bypass filters and cooldowns (ARRAY OF ROLE IDS),
+    "staff_users": The staff users who don't have any of the staff roles. This will bypass filters and cooldowns (ARRAY OF USER IDS),
+    "dev": Whether this is a development instance or not (BOOLEAN) *3,
+    "global_user_cooldown": The time until a user can send a new request in milliseconds (NUMBER),
+    "max_thread_folowup_length": The amount of followup prompts a user can send in a thread (NUMBER),
+    "generation_parameters": {
+        "moderate_prompts": Whether to use openais moderation endpoint before sending the generation request (BOOLEAN),
+        "system_instruction": The system instruction for the chatbot (STRING) *2,
+        "temperature": The temperature for the request (NUMBER) *1,
+        "top_p": The top_t for the request (NUMBER) *1,
+        "max_tokens": The max tokens for the request (-1 for infinite) (NUMBER) *1,
+        "presence_penalty": The presence_penalty for the request (NUMBER) *1,
+        "frequency_penalty": The frequency_penalty for the request (NUMBER) *1,
+        "max_input_chars":  The max characters for the request (NUMBER) *4
+    },
+    "logs": {
+        "enabled": Whether logging is enabled or not (BOOLEAN),
+        "directory": The directory where the logging files are saved to (STRING),
+        "plain": Whether to log in a plain text file (BOOLEAN),
+        "csv": Whether to log in csv format (BOOLEAN)
+    }
+}
+```
+
+`*1` See API Documentation for reference (https://platform.openai.com/docs/api-reference/chat) 
+`*2` See Instructing chat models for reference (https://platform.openai.com/docs/guides/chat/instructing-chat-models)
+`*3` Developer mode will enable logging and will also show the generations ID in the embed in Discord  
+`*4` This option changes how the command is created.
