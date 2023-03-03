@@ -1,8 +1,9 @@
 import SuperMap from "@thunder04/supermap";
+import Centra from "centra";
 import { Client, ClientOptions } from "discord.js";
 import { readFileSync } from "fs";
 import { Store } from "../stores/store";
-import { Config, StoreTypes } from "../types";
+import { Config, OpenAIModerationResponse, StoreTypes } from "../types";
 
 export class ChatGPTBotClient extends Client {
 	commands: Store<StoreTypes.COMMANDS>;
@@ -32,8 +33,20 @@ export class ChatGPTBotClient extends Client {
 
 	async getSlashCommandTag(name: string) {
 		const commands = await this.application?.commands.fetch()
+		const [find_name] = name.split(" ")
 		if(!commands?.size) return `/${name}`
-		else if(commands?.find(c => c.name === name)?.id) return `</${name}:${commands?.find(c => c.name === name)!.id}>`
+		else if(commands?.find(c => c.name === find_name)?.id) return `</${name}:${commands?.find(c => c.name === find_name)!.id}>`
 		else return `/${name}`
+	}
+
+	async checkIfPromptGetsFlagged(message: string): Promise<boolean> {
+		const openai_req = Centra(`https://api.openai.com/v1/moderations`, "POST")
+        .body({
+            input: message
+        }, "json")
+        .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
+
+        const data: OpenAIModerationResponse = await openai_req.send().then(res => res.json())
+		return !!data?.results[0]?.flagged
 	}
 }

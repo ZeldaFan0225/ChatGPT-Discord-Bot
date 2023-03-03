@@ -6,6 +6,7 @@ import { handleComponents } from "./handlers/componentHandler";
 import { handleModals } from "./handlers/modalHandler";
 import { handleAutocomplete } from "./handlers/autocompleteHandler";
 import { handleContexts } from "./handlers/contextHandler";
+import {Pool} from "pg"
 
 const RE_INI_KEY_VAL = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/
 for (const line of readFileSync(`${process.cwd()}/.env`, 'utf8').split(/[\r\n]/)) {
@@ -14,6 +15,14 @@ for (const line of readFileSync(`${process.cwd()}/.env`, 'utf8').split(/[\r\n]/)
 
     process.env[key] = value?.trim()
 }
+
+const connection = new Pool({
+    user: process.env["DB_USERNAME"],
+    host: process.env["DB_IP"],
+    database: process.env["DB_NAME"],
+    password: process.env["DB_PASSWORD"],
+    port: Number(process.env["DB_PORT"]),
+})
 
 const client = new ChatGPTBotClient({
     intents: ["Guilds"]
@@ -24,6 +33,12 @@ client.login(process.env["DISCORD_TOKEN"])
 
 
 client.on("ready", async () => {
+    await connection.connect().then(async () => {
+        await connection.query("CREATE TABLE IF NOT EXISTS chats (index SERIAL, id VARCHAR(100) PRIMARY KEY, user_id VARCHAR(100) NOT NULL, messages JSON[] DEFAULT '{}', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+
+        console.log("Tables created")
+    }).catch(console.error);
+
     client.commands.loadClasses().catch(console.error)
     //client.components.loadClasses().catch(console.error)
     //client.contexts.loadClasses().catch(console.error)
@@ -38,22 +53,27 @@ client.on("interactionCreate", async (interaction) => {
         case InteractionType.ApplicationCommand: {
             switch(interaction.commandType) {
                 case ApplicationCommandType.ChatInput: {
-                    return await handleCommands(interaction, client);
+                    return await handleCommands(interaction, client, connection);
                 }
                 case ApplicationCommandType.User:
                 case ApplicationCommandType.Message: {
-                    return await handleContexts(interaction, client);
+                    return await handleContexts(interaction, client, connection);
                 }
             }
         };
         case InteractionType.MessageComponent: {
-			return await handleComponents(interaction, client);
+			return await handleComponents(interaction, client, connection);
         };
         case InteractionType.ApplicationCommandAutocomplete: {
-			return await handleAutocomplete(interaction, client);
+			return await handleAutocomplete(interaction, client, connection);
         };
         case InteractionType.ModalSubmit: {
-			return await handleModals(interaction, client);
+			return await handleModals(interaction, client, connection);
         };
     }
+})
+
+client.on("threadDelete", async (thread) => {
+    console.log(thread.id)
+    await connection.query("DELETE FROM chats WHERE id=$1", [thread.id])
 })

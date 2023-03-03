@@ -1,21 +1,22 @@
 import { ButtonInteraction, ComponentType, AnySelectMenuInteraction } from "discord.js";
+import { Pool } from "pg";
 import { ChatGPTBotClient } from "../classes/client";
 import { ComponentContext } from "../classes/componentContext";
 
-export async function handleComponents(interaction: ButtonInteraction | AnySelectMenuInteraction, client: ChatGPTBotClient) {
+export async function handleComponents(interaction: ButtonInteraction | AnySelectMenuInteraction, client: ChatGPTBotClient, database: Pool) {
     const command = await client.components.getComponent(interaction).catch(() => null)
     if(!command) return;
     let context
 
 
-    if(interaction.componentType === ComponentType.Button) context = new ComponentContext<ComponentType.Button>({interaction, client})
+    if(interaction.componentType === ComponentType.Button) context = new ComponentContext<ComponentType.Button>({interaction, client, database})
     else {
         switch(interaction.componentType) {
-            case ComponentType.StringSelect: context = new ComponentContext<ComponentType.StringSelect>({interaction, client}); break;
-            case ComponentType.ChannelSelect: context = new ComponentContext<ComponentType.ChannelSelect>({interaction, client}); break;
-            case ComponentType.MentionableSelect: context = new ComponentContext<ComponentType.MentionableSelect>({interaction, client}); break;
-            case ComponentType.RoleSelect: context = new ComponentContext<ComponentType.RoleSelect>({interaction, client}); break;
-            case ComponentType.UserSelect: context = new ComponentContext<ComponentType.UserSelect>({interaction, client}); break;
+            case ComponentType.StringSelect: context = new ComponentContext<ComponentType.StringSelect>({interaction, client, database}); break;
+            case ComponentType.ChannelSelect: context = new ComponentContext<ComponentType.ChannelSelect>({interaction, client, database}); break;
+            case ComponentType.MentionableSelect: context = new ComponentContext<ComponentType.MentionableSelect>({interaction, client, database}); break;
+            case ComponentType.RoleSelect: context = new ComponentContext<ComponentType.RoleSelect>({interaction, client, database}); break;
+            case ComponentType.UserSelect: context = new ComponentContext<ComponentType.UserSelect>({interaction, client, database}); break;
         }
     }
 

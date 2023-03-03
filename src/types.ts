@@ -8,6 +8,7 @@ import {
     ModalSubmitInteraction,
     UserContextMenuCommandInteraction
 } from "discord.js";
+import { Pool } from "pg";
 import { ChatGPTBotClient } from "./classes/client";
 
 export enum StoreTypes {
@@ -25,7 +26,7 @@ export interface StoreInitOptions {
 
 export interface CommandInitOptions {
     name: string,
-    command_data: ApplicationCommandData,
+    command_data?: ApplicationCommandData,
     staff_only: boolean,
 }
 
@@ -38,7 +39,8 @@ export interface CustomIDInitOptions {
 
 export interface BaseContextInitOptions {
     interaction: Interaction,
-    client: ChatGPTBotClient
+    client: ChatGPTBotClient,
+    database: Pool
 }
 
 export interface CommandContextInitOptions extends BaseContextInitOptions {
@@ -86,6 +88,27 @@ export interface OpenAIChatCompletionResponse {
         completion_tokens: number,
         total_tokens: number
     }
+}
+
+export interface ChatData {
+    index: number,
+    id: string,
+    user_id: string,
+    messages: {
+        role: string,
+        content: string
+    }[],
+    created_at: Date
+}
+
+export interface OpenAIModerationResponse {
+    id: string,
+    model: string,
+    results: {
+        categories: Record<string, boolean>,
+        category_scores: Record<string, boolean>,
+        flagged: boolean
+    }[]
 }
 
 export interface Config {

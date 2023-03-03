@@ -1,14 +1,15 @@
 import { ApplicationCommandType, MessageContextMenuCommandInteraction, UserContextMenuCommandInteraction } from "discord.js";
+import { Pool } from "pg";
 import { ChatGPTBotClient } from "../classes/client";
 import { ContextContext } from "../classes/contextContext";
 
-export async function handleContexts(interaction: UserContextMenuCommandInteraction | MessageContextMenuCommandInteraction, client: ChatGPTBotClient) {
+export async function handleContexts(interaction: UserContextMenuCommandInteraction | MessageContextMenuCommandInteraction, client: ChatGPTBotClient, database: Pool) {
     const command = await client.contexts.getContext(interaction).catch(() => null)
     if(!command) return;
 
     let context
-    if(interaction.commandType === ApplicationCommandType.User) context = new ContextContext<ApplicationCommandType.User>({interaction, client})
-    else context = new ContextContext<ApplicationCommandType.Message>({interaction, client})
+    if(interaction.commandType === ApplicationCommandType.User) context = new ContextContext<ApplicationCommandType.User>({interaction, client, database})
+    else context = new ContextContext<ApplicationCommandType.Message>({interaction, client, database})
 
     if(!interaction.inGuild())
         return await context.error({

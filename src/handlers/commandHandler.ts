@@ -1,11 +1,12 @@
 import { ChatInputCommandInteraction } from "discord.js";
+import { Pool } from "pg";
 import { ChatGPTBotClient } from "../classes/client";
 import { CommandContext } from "../classes/commandContext";
 
-export async function handleCommands(interaction: ChatInputCommandInteraction, client: ChatGPTBotClient) {
+export async function handleCommands(interaction: ChatInputCommandInteraction, client: ChatGPTBotClient, database: Pool) {
     const command = await client.commands.getCommand(interaction).catch(() => null)
     if(!command) return;
-    const context = new CommandContext({interaction, client})
+    const context = new CommandContext({interaction, client, database})
     if(!interaction.inGuild())
         return await context.error({
             error: "You can only use commands in guilds",
