@@ -46,6 +46,7 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
+        if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
         const messages = []
@@ -61,7 +62,8 @@ export default class extends Command {
 
         if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id)
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
+        if(!data) return ctx.error({error: "Something went wrong"})
 
         if(ctx.client.config.dev) console.log(data)
 

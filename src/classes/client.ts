@@ -2,6 +2,7 @@ import SuperMap from "@thunder04/supermap";
 import Centra from "centra";
 import { Client, ClientOptions } from "discord.js";
 import {existsSync, mkdirSync, writeFileSync, readFileSync, appendFileSync} from "fs"
+import { Pool } from "pg";
 import { Store } from "../stores/store";
 import { Config, OpenAIChatCompletionResponse, OpenAIModerationResponse, StoreTypes } from "../types";
 
@@ -12,6 +13,7 @@ export class ChatGPTBotClient extends Client {
 	modals: Store<StoreTypes.MODALS>;
     config: Config
 	cooldown: SuperMap<string, any>
+	cache: SuperMap<string, boolean>
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -21,6 +23,9 @@ export class ChatGPTBotClient extends Client {
 		this.modals = new Store<StoreTypes.MODALS>({files_folder: "/modals", load_classes_on_init: false, storetype: StoreTypes.MODALS});
         this.config = {}
 		this.cooldown = new SuperMap({
+			intervalTime: 1000
+		})
+		this.cache = new SuperMap({
 			intervalTime: 1000
 		})
         this.loadConfig()
@@ -64,6 +69,14 @@ export class ChatGPTBotClient extends Client {
 		return !!data?.results[0]?.flagged
 	}
 
+	async checkConsent(user_id: string, database: Pool) {
+		if(this.cache.has(user_id)) return this.cache.get(user_id)
+
+		const res = await database.query("SELECT * FROM user_data WHERE user_id=$1", [user_id]).catch(console.error)
+		this.cache.set(user_id, !!res?.rowCount, 1000 * 60)
+		return !!res?.rowCount
+	}
+
 	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string) {
 		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
         .body({
@@ -79,12 +92,12 @@ export class ChatGPTBotClient extends Client {
         .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
 
         const data: OpenAIChatCompletionResponse = await openai_req.send().then(res => res.json())
+		if(this.config.dev) console.log(data)
 
 		if (this.config.logs?.enabled) {
             const logGeneration = (type: "txt" | "csv") => {
                 this.initLogDir();
                 const log_dir = this.config.logs?.directory ?? "/logs";
-                console.log(data.id.length)
                 const content = type === "csv" ? `\n${new Date().toISOString()},${user_id},${data.id},"${messages.at(-1)?.content}"` : `\n${new Date().toISOString()} | ${user_id}${" ".repeat(20 - user_id.length)} | ${data.id}${" ".repeat(40 - data.id.length)} | ${messages.at(-1)?.content}`;
                 appendFileSync(`${process.cwd()}${log_dir}/logs_${new Date().getMonth() + 1}-${new Date().getFullYear()}.${type}`, content);
             }
@@ -93,6 +106,7 @@ export class ChatGPTBotClient extends Client {
             if (this.config.logs.csv) logGeneration("csv");
         }
 
+		if(!data?.id) throw new Error("Unable to generate response")
 		return data
 	}
 }

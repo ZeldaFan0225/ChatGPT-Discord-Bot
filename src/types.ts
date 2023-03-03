@@ -115,6 +115,7 @@ export interface Config {
     staff_roles?: string[],
     dev?: boolean,
     global_user_cooldown?: number,
+    max_thread_folowup_length?: number,
     moderate_prompts?: boolean,
     generation_parameters?: {
         system_instruction?: string,

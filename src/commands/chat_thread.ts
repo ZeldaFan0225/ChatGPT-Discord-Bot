@@ -13,6 +13,7 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
+        if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
         const messages = []
@@ -28,15 +29,26 @@ export default class extends Command {
                 content: message
             })
 
+            if(ctx.client.config.max_thread_folowup_length && messages.filter(m => m.role === "user").length > ctx.client.config.max_thread_folowup_length) return ctx.error({error: "Max length of this conversation reached"})
+
             await ctx.interaction.deferReply()
 
-            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id)
+            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
+            if(!ai_data) return ctx.error({error: "Something went wrong"})
 
             if(ctx.client.config.dev) console.log(ai_data)
 
             if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
             const reply = await ctx.interaction.editReply({
                 embeds: [
+                    new EmbedBuilder({
+                        author: {
+                            name: ctx.interaction.user.tag,
+                            icon_url: ctx.interaction.user.displayAvatarURL()
+                        },
+                        color: Colors.Blue,
+                        description: message
+                    }),
                     new EmbedBuilder({
                         author: {
                             name: "ChatGPT",
@@ -93,7 +105,8 @@ export default class extends Command {
             fetchReply: true
         })
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id)
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
+        if(!data) return ctx.error({error: "Something went wrong"})
 
         if(ctx.client.config.dev) console.log(data)
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)

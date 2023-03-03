@@ -38,13 +38,14 @@ if(client.config.logs?.enabled) {
 
 client.on("ready", async () => {
     await connection.connect().then(async () => {
+        await connection.query("CREATE TABLE IF NOT EXISTS user_data (index SERIAL, user_id VARCHAR(100) PRIMARY KEY)")
         await connection.query("CREATE TABLE IF NOT EXISTS chats (index SERIAL, id VARCHAR(100) PRIMARY KEY, user_id VARCHAR(100) NOT NULL, messages JSON[] DEFAULT '{}', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
 
         console.log("Tables created")
     }).catch(console.error);
 
     client.commands.loadClasses().catch(console.error)
-    //client.components.loadClasses().catch(console.error)
+    client.components.loadClasses().catch(console.error)
     //client.contexts.loadClasses().catch(console.error)
     //client.modals.loadClasses().catch(console.error)
     client.user?.setPresence({activities: [{type: ActivityType.Listening, name: "to ChatGPT screaming at your requests"}], status: PresenceUpdateStatus.DoNotDisturb, })
