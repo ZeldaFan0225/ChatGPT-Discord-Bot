@@ -41,7 +41,7 @@ export default class extends Command {
         super({
             name: "chat_single",
             command_data: command_data.toJSON(),
-            staff_only: true,
+            staff_only: false,
         })
     }
 
