@@ -13,11 +13,11 @@ export default class extends Component {
     }
 
     override async run(ctx: ComponentContext<ComponentType.Button>): Promise<any> {
-        await ctx.interaction.deferUpdate()
         const interaction_message = ctx.interaction.message
+        if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
+        await ctx.interaction.deferUpdate()
         if(interaction_message.interaction?.user.id !== ctx.interaction.user.id) return;
         if(!interaction_message.embeds[0]?.description) return;
-        if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const [message] = interaction_message.embeds[0]?.description.split("\n\n")
         if(!message?.length) return ctx.interaction.deferUpdate()
         const system_instruction_name = interaction_message.embeds[0]?.description.matchAll(/\*\*ChatGPT \((?<name>[A-Za-z0-9_-]+)\)\:\*\*/g)?.next()?.value?.groups?.name ?? "default"
