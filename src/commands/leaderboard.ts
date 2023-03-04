@@ -55,7 +55,6 @@ export default class extends Command {
             components: [delete_button]
         }]
 
-        await ctx.interaction.editReply({
-        })
+        await ctx.interaction.editReply(payload)
     }
 }
