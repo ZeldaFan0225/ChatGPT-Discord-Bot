@@ -1,4 +1,4 @@
-import { Colors, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions, SlashCommandBuilder } from "discord.js";
 import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
 
@@ -7,6 +7,11 @@ const command_data = new SlashCommandBuilder()
     .setDMPermission(false)
     .setDescription(`Shows the total tokens leaderboard`)
 
+const delete_button = new ButtonBuilder({
+    emoji: {name: "🚮"},
+    custom_id: "delete",
+    style: 4
+})
 
 export default class extends Command {
     constructor() {
@@ -41,8 +46,16 @@ export default class extends Command {
             color: Colors.Green
         })
 
-        await ctx.interaction.editReply({
+        const payload: InteractionEditReplyOptions = {
             embeds: [embed]
+        }
+
+        if(ctx.client.config.features.delete_button) payload.components = [{
+            type: 1,
+            components: [delete_button]
+        }]
+
+        await ctx.interaction.editReply({
         })
     }
 }
