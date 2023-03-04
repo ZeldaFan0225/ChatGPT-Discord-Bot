@@ -58,7 +58,7 @@ export class ChatGPTBotClient extends Client {
 	}
 
 	async checkIfPromptGetsFlagged(message: string): Promise<boolean> {
-		if(!this.config.moderate_prompts) return false;
+		if(!this.config.generation_parameters?.moderate_prompts) return false;
 		const openai_req = Centra(`https://api.openai.com/v1/moderations`, "POST")
         .body({
             input: message
@@ -66,6 +66,7 @@ export class ChatGPTBotClient extends Client {
         .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
 
         const data: OpenAIModerationResponse = await openai_req.send().then(res => res.json())
+		if(this.config.dev) console.log(data)
 		return !!data?.results[0]?.flagged
 	}
 

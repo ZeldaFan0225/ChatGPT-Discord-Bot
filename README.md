@@ -24,10 +24,8 @@ The bot has the following features:
 
 ## Version Requirements
 
-- NodeJS >= 16.16
-
-Optional:  
-- PostgreSQL >= 14.6
+- NodeJS >= 16.16  
+- PostgreSQL >= 14.6  
 
 ## How to set up
 

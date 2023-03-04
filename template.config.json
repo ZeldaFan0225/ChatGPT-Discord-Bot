@@ -9,7 +9,7 @@
     "max_thread_folowup_length": 5,
     "generation_parameters": {
         "moderate_prompts": true,
-        "system_instruction": "You are a useful helper called 'ChatGPT Discord by Zelda_Fan' and your knowledge cutoff is in 2021.",
+        "default_system_instruction": "You are a useful helper called 'ChatGPT Discord by Zelda_Fan' and your knowledge cutoff is in 2021.",
         "temperature": 1,
         "top_p": 1,
         "max_tokens": -1,
@@ -17,6 +17,12 @@
         "frequency_penalty": 0,
         "max_input_chars": 2000
     },
+    "selectable_system_inctructions": [
+        {
+            "name": "german",
+            "system_instruction": "You are a useful helper 'ChatGPT Discord by Zelda_Fan' and your knowledge cutoff is in 2021. You only answer in german, no matter what you are told by the user"
+        }
+    ],
     "logs": {
         "enabled": true,
         "directory": "/logs",

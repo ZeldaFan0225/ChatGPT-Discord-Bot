@@ -2,13 +2,19 @@ import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
 import { ChatData } from "../types";
 import { EmbedBuilder } from "@discordjs/builders";
-import { AttachmentBuilder, Colors } from "discord.js";
+import { AttachmentBuilder, ButtonBuilder, Colors } from "discord.js";
+
+const delete_button = new ButtonBuilder({
+    emoji: {name: "🚮"},
+    custom_id: "delete",
+    style: 4
+})
 
 export default class extends Command {
     constructor() {
         super({
             name: "chat_thread",
-            staff_only: true,
+            staff_only: false,
         })
     }
 
@@ -16,6 +22,8 @@ export default class extends Command {
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
+        const system_inctruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
+        const system_instruction = system_inctruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_inctructions?.find(i => i.name?.toLowerCase() === system_inctruction_name)?.system_instruction
         const messages = []
 
         if(ctx.interaction.channel?.isThread()) {
@@ -33,10 +41,10 @@ export default class extends Command {
 
             await ctx.interaction.deferReply()
 
+            if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
+
             const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
             if(!ai_data) return ctx.error({error: "Something went wrong"})
-
-            if(ctx.client.config.dev) console.log(ai_data)
 
             if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
             const reply = await ctx.interaction.editReply({
@@ -84,7 +92,7 @@ export default class extends Command {
             return;
         }
 
-        if(ctx.client.config.generation_parameters?.system_instruction?.length) messages.push({role: "system", content: ctx.client.config.generation_parameters?.system_instruction})
+        if(system_instruction?.length) messages.push({role: "system", content: system_instruction})
 
         messages.push({
             role: "user",
@@ -105,15 +113,20 @@ export default class extends Command {
             fetchReply: true
         })
 
+        if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
+
+        await reply.react("⌛")
+
         const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
-        if(ctx.client.config.dev) console.log(data)
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
 
         const thread = await reply.startThread({
             name: `ChatGPT Chat ${ctx.interaction.user.tag}`,
         }).catch(console.error)
+
+        await reply.reactions.cache.get("⌛")?.remove()
 
         if(!thread?.id) {
             const description = `${message}\n\n**ChatGPT:**\n${data.choices[0]?.message.content ?? "Hi there"}\n\nUnable to start thread`
@@ -172,6 +185,13 @@ export default class extends Command {
                     color: !!db_save?.rowCount ? Colors.Green : Colors.Red
                 })
             ]
+        })
+
+        await reply.edit({
+            components: [{
+                type: 1,
+                components: [delete_button]
+            }]
         })
 
         if(!db_save?.rowCount) thread.setLocked(true)

@@ -116,10 +116,10 @@ export interface Config {
     staff_users?: string[],
     dev?: boolean,
     global_user_cooldown?: number,
-    max_thread_folowup_length?: number,
-    moderate_prompts?: boolean,
+    max_thread_folowup_length?: number
     generation_parameters?: {
-        system_instruction?: string,
+        moderate_prompts?: boolean,
+        default_system_instruction?: string,
         temperature?: number,
         top_p?: number,
         max_tokens?: number,
@@ -127,6 +127,10 @@ export interface Config {
         frequency_penalty?: number,
         max_input_chars?: number
     },
+    selectable_system_inctructions?: {
+        name?: string,
+        system_instruction?: string
+    }[]
     logs?: {
         enabled?: boolean,
         directory?: string,

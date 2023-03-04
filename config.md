@@ -11,7 +11,7 @@ Here you can see an explanation of what which option does
     "max_thread_folowup_length": The amount of followup prompts a user can send in a thread (NUMBER),
     "generation_parameters": {
         "moderate_prompts": Whether to use openais moderation endpoint before sending the generation request (BOOLEAN),
-        "system_instruction": The system instruction for the chatbot (STRING) *2,
+        "default_system_instruction": The system instruction for the chatbot (STRING) *2,
         "temperature": The temperature for the request (NUMBER) *1,
         "top_p": The top_t for the request (NUMBER) *1,
         "max_tokens": The max tokens for the request (-1 for infinite) (NUMBER) *1,
