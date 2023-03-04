@@ -31,7 +31,9 @@ Here you can see an explanation of what which option does
         "chat_thread": Whether this feature is enabled or not (BOOLEAN) *4,
         "regenerate_button": Whether this feature is enabled or not (BOOLEAN),
         "delete_button": Whether this feature is enabled or not (BOOLEAN),
-        "view_system_instruction": Whether this feature is enabled or not (BOOLEAN) *4
+        "view_system_instruction": Whether this feature is enabled or not (BOOLEAN) *4,
+        "user_stats": Whether to record user stats or not,
+        "user_leaderboard": Whether this feature is enabled or not (BOOLEAN) *4
     }
 }
 ```

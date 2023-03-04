@@ -102,7 +102,7 @@ export default class extends Command {
 
         if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
         const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content ?? "Hi there"}`
@@ -175,7 +175,7 @@ ${system_instruction ?? "NONE"}`,
                     })) ?? [])
                 ]
 
-                if(focused.value) instructions = instructions.filter(o => o.name.includes(focused.value))
+                if(focused.value) instructions = instructions.filter(o => o.value.toLowerCase().includes(focused.value.toLowerCase()))
 
                 return ctx.interaction.respond(instructions.slice(0, 25))
             }

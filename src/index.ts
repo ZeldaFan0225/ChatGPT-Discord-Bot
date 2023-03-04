@@ -38,7 +38,8 @@ if(client.config.logs?.enabled) {
 
 client.on("ready", async () => {
     await connection.connect().then(async () => {
-        await connection.query("CREATE TABLE IF NOT EXISTS user_data (index SERIAL, user_id VARCHAR(100) PRIMARY KEY)")
+        //console.log(await connection.query("ALTER TABLE user_data ADD COLUMN tokens int NOT NULL DEFAULT 0"))
+        await connection.query("CREATE TABLE IF NOT EXISTS user_data (index SERIAL, user_id VARCHAR(100) PRIMARY KEY, tokens int NOT NULL DEFAULT 0)")
         await connection.query("CREATE TABLE IF NOT EXISTS chats (index SERIAL, id VARCHAR(100) PRIMARY KEY, user_id VARCHAR(100) NOT NULL, messages JSON[] DEFAULT '{}', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
 
         console.log("Tables created")

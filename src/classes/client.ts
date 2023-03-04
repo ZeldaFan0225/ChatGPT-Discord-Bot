@@ -78,7 +78,7 @@ export class ChatGPTBotClient extends Client {
 		return !!res?.rowCount
 	}
 
-	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string) {
+	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string, database: Pool) {
 		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
         .body({
             model: "gpt-3.5-turbo",
@@ -108,6 +108,17 @@ export class ChatGPTBotClient extends Client {
         }
 
 		if(!data?.id) throw new Error("Unable to generate response")
+		
+        await this.recordSpentTokens(user_id, data.usage.total_tokens ?? 0, database)
+
 		return data
+	}
+
+	async recordSpentTokens(user_id: string, tokens: number, database: Pool) {
+		if(!this.config.features?.user_stats) return false;
+
+		const res = await database.query("UPDATE user_data SET tokens = user_data.tokens + $2 WHERE user_id=$1 RETURNING *", [user_id, tokens]).catch(console.error)
+		console.log(res)
+		return !!res?.rowCount
 	}
 }

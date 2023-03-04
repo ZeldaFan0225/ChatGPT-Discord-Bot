@@ -46,7 +46,7 @@ export default class extends Command {
 
             if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
-            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
+            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database).catch(console.error)
             if(!ai_data) return ctx.error({error: "Something went wrong"})
 
             if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
@@ -123,7 +123,7 @@ ${system_instruction ?? "NONE"}`,
 
         await reply.react("⌛")
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
@@ -245,7 +245,7 @@ ${system_instruction ?? "NONE"}`,
                     })) ?? [])
                 ]
 
-                if(focused.value) instructions = instructions.filter(o => o.name.includes(focused.value))
+                if(focused.value) instructions = instructions.filter(o => o.value.toLowerCase().includes(focused.value.toLowerCase()))
 
                 return ctx.interaction.respond(instructions.slice(0, 25))
             }

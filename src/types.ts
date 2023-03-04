@@ -142,6 +142,8 @@ export interface Config {
         chat_thread?: boolean,
         regenerate_button?: boolean,
         delete_button?: boolean,
-        view_system_instruction?: boolean
+        view_system_instruction?: boolean,
+        user_stats?: boolean,
+        user_leaderboard?: boolean
     }
 }

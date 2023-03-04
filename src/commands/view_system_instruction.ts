@@ -59,7 +59,7 @@ export default class extends Command {
                     })) ?? [])
                 ]
 
-                if(focused.value) instructions = instructions.filter(o => o.name.includes(focused.value))
+                if(focused.value) instructions = instructions.filter(o => o.value.toLowerCase().includes(focused.value.toLowerCase()))
 
                 return ctx.interaction.respond(instructions.slice(0, 25))
             }

@@ -34,7 +34,7 @@ export default class extends Component {
             content: message
         })
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
         const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content ?? "Hi there"}`

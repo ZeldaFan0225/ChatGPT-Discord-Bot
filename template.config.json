@@ -35,6 +35,8 @@
         "chat_thread": true,
         "regenerate_button": true,
         "delete_button": true,
-        "view_system_instruction": true
+        "view_system_instruction": true,
+        "user_stats": true,
+        "user_leaderboard": true
     }
 }
