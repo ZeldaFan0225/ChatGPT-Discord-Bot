@@ -19,11 +19,18 @@ Here you can see an explanation of what which option does
         "frequency_penalty": The frequency_penalty for the request (NUMBER) *1,
         "max_input_chars":  The max characters for the request (NUMBER) *4
     },
+    "selectable_system_inctructions": An array of selectable system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
     "logs": {
         "enabled": Whether logging is enabled or not (BOOLEAN),
         "directory": The directory where the logging files are saved to (STRING),
         "plain": Whether to log in a plain text file (BOOLEAN),
         "csv": Whether to log in csv format (BOOLEAN)
+    },
+    "features": {
+        "chat_single": Whether this feature is enabled or not (BOOLEAN) *4,
+        "chat_thread": Whether this feature is enabled or not (BOOLEAN) *4,
+        "regenerate_button": Whether this feature is enabled or not (BOOLEAN),
+        "delete_button": Whether this feature is enabled or not (BOOLEAN)
     }
 }
 ```
