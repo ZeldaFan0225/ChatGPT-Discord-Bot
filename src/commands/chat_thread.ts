@@ -83,7 +83,10 @@ export default class extends Command {
                 
 **Prompt Tokens** ${ai_data.usage.prompt_tokens}
 **Completion Tokens** ${ai_data.usage.completion_tokens}
-**Total Tokens** ${ai_data.usage.total_tokens}`,
+**Total Tokens** ${ai_data.usage.total_tokens}
+
+**System Instruction**
+${system_instruction ?? "NONE"}`,
                     color: Colors.Red
                 })
                 await reply.reply({
@@ -213,7 +216,10 @@ export default class extends Command {
                 
 **Prompt Tokens** ${data.usage.prompt_tokens}
 **Completion Tokens** ${data.usage.completion_tokens}
-**Total Tokens** ${data.usage.total_tokens}`,
+**Total Tokens** ${data.usage.total_tokens}
+
+**System Instruction**
+${system_instruction ?? "NONE"}`,
                 color: Colors.Red
             })
             await thread_msg.reply({

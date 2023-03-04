@@ -73,7 +73,10 @@ export default class extends Component {
                 
 **Prompt Tokens** ${data.usage.prompt_tokens}
 **Completion Tokens** ${data.usage.completion_tokens}
-**Total Tokens** ${data.usage.total_tokens}`,
+**Total Tokens** ${data.usage.total_tokens}
+
+**System Instruction**
+${system_instruction ?? "NONE"}`,
                 color: Colors.Red
             })
             await res.reply({
