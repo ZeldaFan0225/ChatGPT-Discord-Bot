@@ -109,8 +109,8 @@ export default class extends Command {
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
-        const system_inctruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
-        const system_instruction = system_inctruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_inctructions?.find(i => i.name?.toLowerCase() === system_inctruction_name)?.system_instruction
+        const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
+        const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_inctructions?.find(i => i.name?.toLowerCase() === system_instruction_name)?.system_instruction
         const messages = []
 
         if(system_instruction?.length) messages.push({role: "system", content: system_instruction})
@@ -127,7 +127,7 @@ export default class extends Command {
         const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
-        const description = `${message}\n\n**ChatGPT:**\n${data.choices[0]?.message.content ?? "Hi there"}`
+        const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content ?? "Hi there"}`
         let payload: InteractionEditReplyOptions = {
             components: [{
                 type: 1,
@@ -148,7 +148,7 @@ export default class extends Command {
 
             payload.embeds = [embed]
         } else {
-            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.tag}:\n${message}\n\nChatGPT:\n${data.choices[0]?.message.content ?? "Hi there"}\n\nThis response has been generated using OpenAIs GPT-3.5 model`), {name: `${data.id}.txt`})
+            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.tag}:\n${message}\n\nChatGPT (${system_instruction_name}):\n${data.choices[0]?.message.content ?? "Hi there"}\n\nThis response has been generated using OpenAIs GPT-3.5 model`), {name: `${data.id}.txt`})
             payload.content = "Result attached below"
             payload.files = [attachment]
         }
