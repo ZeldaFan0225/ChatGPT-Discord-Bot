@@ -22,6 +22,8 @@ The bot has the following features:
 - advanced configuration
 - logging to detect tos-breaking prompts
 
+If you want some inspiration on system instructions for the GPT-3.5 model you can view [my repository](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot-System-Instructions) for it.  
+
 ## Version Requirements
 
 - NodeJS >= 16.16  
