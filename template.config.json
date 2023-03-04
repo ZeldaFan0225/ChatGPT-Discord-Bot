@@ -34,6 +34,7 @@
         "chat_single": true,
         "chat_thread": true,
         "regenerate_button": true,
-        "delete_button": true
+        "delete_button": true,
+        "view_system_instruction": true
     }
 }

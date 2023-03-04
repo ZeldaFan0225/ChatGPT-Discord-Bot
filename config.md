@@ -30,7 +30,8 @@ Here you can see an explanation of what which option does
         "chat_single": Whether this feature is enabled or not (BOOLEAN) *4,
         "chat_thread": Whether this feature is enabled or not (BOOLEAN) *4,
         "regenerate_button": Whether this feature is enabled or not (BOOLEAN),
-        "delete_button": Whether this feature is enabled or not (BOOLEAN)
+        "delete_button": Whether this feature is enabled or not (BOOLEAN),
+        "view_system_instruction": Whether this feature is enabled or not (BOOLEAN) *4
     }
 }
 ```
