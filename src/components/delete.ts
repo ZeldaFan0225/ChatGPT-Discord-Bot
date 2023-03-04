@@ -16,7 +16,7 @@ export default class extends Component {
         if(!ctx.client.config.features?.delete_button) return ctx.error({error: "This action is disabled"})
         await ctx.interaction.deferUpdate()
         const message = ctx.interaction.message
-        if(message.interaction?.user.id !== ctx.interaction.user.id) return;
+        if(message.interaction?.user.id !== ctx.interaction.user.id && !ctx.is_staff) return;
         if(message.interaction?.commandName === "chat thread") {
             await message.thread?.delete()
         }

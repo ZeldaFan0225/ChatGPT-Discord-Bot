@@ -6,11 +6,6 @@ import { readFileSync } from "fs";
 
 const config: Config = JSON.parse(readFileSync("config.json", "utf-8"))
 
-console.log(config.selectable_system_inctructions!.slice(0, 24).map(i => ({
-    name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
-    value: i.name!
-})))
-
 const command_data = new SlashCommandBuilder()
     .setName("chat")
     .setDMPermission(false)
