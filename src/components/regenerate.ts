@@ -13,6 +13,7 @@ export default class extends Component {
     }
 
     override async run(ctx: ComponentContext<ComponentType.Button>): Promise<any> {
+        if(!ctx.client.config.features?.regenerate_button) return ctx.error({error: "This action is disabled"})
         const interaction_message = ctx.interaction.message
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         await ctx.interaction.deferUpdate()

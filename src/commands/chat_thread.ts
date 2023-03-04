@@ -2,7 +2,7 @@ import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
 import { ChatData } from "../types";
 import { EmbedBuilder } from "@discordjs/builders";
-import { AttachmentBuilder, ButtonBuilder, Colors } from "discord.js";
+import { AttachmentBuilder, ButtonBuilder, Colors, InteractionEditReplyOptions } from "discord.js";
 
 const delete_button = new ButtonBuilder({
     emoji: {name: "🚮"},
@@ -19,6 +19,7 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
+        if(!ctx.client.config.features?.chat_thread) return ctx.error({error: "This command is disabled"})
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
@@ -130,7 +131,14 @@ export default class extends Command {
 
         if(!thread?.id) {
             const description = `${message}\n\n**ChatGPT:**\n${data.choices[0]?.message.content ?? "Hi there"}\n\nUnable to start thread`
-            let payload = {}
+            let payload: InteractionEditReplyOptions = {}
+
+            if(ctx.client.config.features.delete_button) {
+                payload.components = [{
+                    type: 1,
+                    components: [delete_button]
+                }]
+            }
     
             if(description.length < 4000) {
                 const embed = new EmbedBuilder({
@@ -187,12 +195,14 @@ export default class extends Command {
             ]
         })
 
-        await reply.edit({
-            components: [{
-                type: 1,
-                components: [delete_button]
-            }]
-        })
+        if(ctx.client.config.features.delete_button)
+            await reply.edit({
+                components: [{
+                    type: 1,
+                    components: [delete_button]
+                }]
+            })
+        
 
         if(!db_save?.rowCount) thread.setLocked(true)
 

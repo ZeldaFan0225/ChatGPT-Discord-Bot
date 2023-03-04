@@ -15,73 +15,82 @@ const command_data = new SlashCommandBuilder()
     .setName("chat")
     .setDMPermission(false)
     .setDescription(`Start chatting with the AI`)
-    .addSubcommand(
-        o => {
-            o
-            .setName("single")
-            .setDescription("Get a single response without the possibility to followup")
-            .addStringOption(
-                new SlashCommandStringOption()
-                .setName("message")
-                .setDescription("The message to send to the AI")
-                .setRequired(true)
-                .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
-            )
-            if(config.selectable_system_inctructions?.length) {
-                o.addStringOption(
+
+    if(config.features?.chat_single) {
+        command_data
+        .addSubcommand(
+            o => {
+                o
+                .setName("single")
+                .setDescription("Get a single response without the possibility to followup")
+                .addStringOption(
                     new SlashCommandStringOption()
-                    .setName("system_instruction")
-                    .setDescription("The system instruction to choose")
-                    .setRequired(false)
-                    .addChoices(
-                        {
-                            name: "Default",
-                            value: "default"
-                        },
-                        ...config.selectable_system_inctructions!.slice(0, 24).map(i => ({
-                            name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
-                            value: i.name!
-                        }))
-                    )
+                    .setName("message")
+                    .setDescription("The message to send to the AI")
+                    .setRequired(true)
+                    .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
                 )
+                if(config.selectable_system_inctructions?.length) {
+                    o.addStringOption(
+                        new SlashCommandStringOption()
+                        .setName("system_instruction")
+                        .setDescription("The system instruction to choose")
+                        .setRequired(false)
+                        .addChoices(
+                            {
+                                name: "Default",
+                                value: "default"
+                            },
+                            ...config.selectable_system_inctructions!.slice(0, 24).map(i => ({
+                                name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
+                                value: i.name!
+                            }))
+                        )
+                    )
+                }
+                return o;
             }
-            return o;
-        }
-    )
-    .addSubcommand(
-        o => {
-            o
-            .setName("thread")
-            .setDescription("Start a thread for chatting with ChatGPT")
-            .addStringOption(
-                new SlashCommandStringOption()
-                .setName("message")
-                .setDescription("The message to send to the AI")
-                .setRequired(true)
-                .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
-            )
-            
-            if(config.selectable_system_inctructions?.length) {
-                o.addStringOption(
+        )
+    }
+
+    if(config.features?.chat_thread) {
+        command_data
+        .addSubcommand(
+            o => {
+                o
+                .setName("thread")
+                .setDescription("Start a thread for chatting with ChatGPT")
+                .addStringOption(
                     new SlashCommandStringOption()
-                    .setName("system_instruction")
-                    .setDescription("The system instruction to choose")
-                    .setRequired(false)
-                    .addChoices(
-                        {
-                            name: "Default",
-                            value: "default"
-                        },
-                        ...config.selectable_system_inctructions!.slice(0, 24).map(i => ({
-                            name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
-                            value: i.name!
-                        }))
-                    )
+                    .setName("message")
+                    .setDescription("The message to send to the AI")
+                    .setRequired(true)
+                    .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
                 )
+                
+                if(config.selectable_system_inctructions?.length) {
+                    o.addStringOption(
+                        new SlashCommandStringOption()
+                        .setName("system_instruction")
+                        .setDescription("The system instruction to choose")
+                        .setRequired(false)
+                        .addChoices(
+                            {
+                                name: "Default",
+                                value: "default"
+                            },
+                            ...config.selectable_system_inctructions!.slice(0, 24).map(i => ({
+                                name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
+                                value: i.name!
+                            }))
+                        )
+                    )
+                }
+                return o;
             }
-            return o;
-        }
-    )
+        )
+    }
+    
 
 const regenerate_button = new ButtonBuilder({
     emoji: {name: "🔄"},
@@ -106,6 +115,7 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
+        if(!ctx.client.config.features?.chat_single) return ctx.error({error: "This command is disabled"})
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
@@ -128,11 +138,18 @@ export default class extends Command {
         if(!data) return ctx.error({error: "Something went wrong"})
 
         const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content ?? "Hi there"}`
-        let payload: InteractionEditReplyOptions = {
-            components: [{
+        let payload: InteractionEditReplyOptions = {}
+
+        if(ctx.client.config.features.delete_button || ctx.client.config.features.regenerate_button) {
+            const components: {type: 1, components: ButtonBuilder[]}[] = [{
                 type: 1,
-                components: [regenerate_button, delete_button]
+                components: []
             }]
+
+            if(ctx.client.config.features.regenerate_button) components[0]!.components.push(regenerate_button)
+            if(ctx.client.config.features.delete_button) components[0]!.components.push(delete_button)
+
+            payload.components = components
         }
 
         if(description.length < 4000) {

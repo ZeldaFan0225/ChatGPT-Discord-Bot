@@ -28,5 +28,11 @@
         "directory": "/logs",
         "plain": true,
         "csv": true
+    },
+    "features": {
+        "chat_single": true,
+        "chat_thread": true,
+        "regenerate_button": true,
+        "delete_button": true
     }
 }

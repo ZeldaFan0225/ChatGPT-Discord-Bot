@@ -136,5 +136,11 @@ export interface Config {
         directory?: string,
         plain?: boolean,
         csv?: boolean
+    },
+    features?: {
+        chat_single?: boolean,
+        chat_thread?: boolean,
+        regenerate_button?: boolean,
+        delete_button?: boolean,
     }
 }

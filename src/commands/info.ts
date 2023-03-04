@@ -25,6 +25,7 @@ export default class extends Command {
         })
 
         return ctx.interaction.reply({
+            ephemeral: true,
             embeds: [embed]
         })
     }
