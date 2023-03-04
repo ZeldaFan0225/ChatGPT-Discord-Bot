@@ -3,6 +3,7 @@ import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
 import { Config } from "../types";
 import {readFileSync} from "fs"
+import { AutocompleteContext } from "../classes/autocompleteContext";
 
 const config: Config = JSON.parse(readFileSync("config.json", "utf-8"))
 
@@ -17,16 +18,7 @@ const command_data = new SlashCommandBuilder()
             .setName("system_instruction")
             .setDescription("The system instruction to choose")
             .setRequired(true)
-            .addChoices(
-                {
-                    name: "Default",
-                    value: "default"
-                },
-                ...config.selectable_system_instructions!.slice(0, 24).map(i => ({
-                    name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
-                    value: i.name!
-                }))
-            )
+            .setAutocomplete(true)
         )
     }
 
@@ -44,10 +36,33 @@ export default class extends Command {
         if(!ctx.client.config.features?.view_system_instruction) return ctx.error({error: "This command is disabled"})
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
         const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name)?.system_instruction
+        if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
 
         await ctx.interaction.reply({
             content: `System instruction \`${system_instruction_name}\`:\n\n${system_instruction ?? "NONE"}`,
             ephemeral: true
         })
+    }
+
+    override async autocomplete(ctx: AutocompleteContext): Promise<any> {
+        const focused = ctx.interaction.options.getFocused(true)
+        switch(focused.name) {
+            case "system_instruction": {
+                let instructions = [
+                    {
+                        name: "Default",
+                        value: "default"
+                    },
+                    ...(ctx.client.config.selectable_system_instructions?.slice(0, 24).map(i => ({
+                        name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
+                        value: i.name!
+                    })) ?? [])
+                ]
+
+                if(focused.value) instructions = instructions.filter(o => o.name.includes(focused.value))
+
+                return ctx.interaction.respond(instructions.slice(0, 25))
+            }
+        }
     }
 }

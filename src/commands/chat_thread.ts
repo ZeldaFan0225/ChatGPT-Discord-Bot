@@ -3,6 +3,7 @@ import { CommandContext } from "../classes/commandContext";
 import { ChatData } from "../types";
 import { EmbedBuilder } from "@discordjs/builders";
 import { AttachmentBuilder, ButtonBuilder, Colors, InteractionEditReplyOptions } from "discord.js";
+import { AutocompleteContext } from "../classes/autocompleteContext";
 
 const delete_button = new ButtonBuilder({
     emoji: {name: "🚮"},
@@ -23,8 +24,9 @@ export default class extends Command {
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
-        const system_inctruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
-        const system_instruction = system_inctruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_inctruction_name)?.system_instruction
+        const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
+        const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name)?.system_instruction
+        if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
         const messages = []
 
         if(ctx.interaction.channel?.isThread()) {
@@ -225,6 +227,28 @@ ${system_instruction ?? "NONE"}`,
             await thread_msg.reply({
                 embeds: [devembed]
             })
+        }
+    }
+
+    override async autocomplete(ctx: AutocompleteContext): Promise<any> {
+        const focused = ctx.interaction.options.getFocused(true)
+        switch(focused.name) {
+            case "system_instruction": {
+                let instructions = [
+                    {
+                        name: "Default",
+                        value: "default"
+                    },
+                    ...(ctx.client.config.selectable_system_instructions?.slice(0, 24).map(i => ({
+                        name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
+                        value: i.name!
+                    })) ?? [])
+                ]
+
+                if(focused.value) instructions = instructions.filter(o => o.name.includes(focused.value))
+
+                return ctx.interaction.respond(instructions.slice(0, 25))
+            }
         }
     }
 }

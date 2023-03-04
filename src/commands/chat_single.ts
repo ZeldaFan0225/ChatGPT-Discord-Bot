@@ -1,8 +1,9 @@
-import { AttachmentBuilder, ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions, SlashCommandBuilder, SlashCommandStringOption } from "discord.js";
+import { AttachmentBuilder, ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions, SlashCommandBuilder, SlashCommandStringOption, SlashCommandSubcommandBuilder } from "discord.js";
 import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
 import { Config } from "../types";
 import { readFileSync } from "fs";
+import { AutocompleteContext } from "../classes/autocompleteContext";
 
 const config: Config = JSON.parse(readFileSync("config.json", "utf-8"))
 
@@ -14,8 +15,7 @@ const command_data = new SlashCommandBuilder()
     if(config.features?.chat_single) {
         command_data
         .addSubcommand(
-            o => {
-                o
+            new SlashCommandSubcommandBuilder()
                 .setName("single")
                 .setDescription("Get a single response without the possibility to followup")
                 .addStringOption(
@@ -25,64 +25,36 @@ const command_data = new SlashCommandBuilder()
                     .setRequired(true)
                     .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
                 )
-                if(config.selectable_system_instructions?.length) {
-                    o.addStringOption(
-                        new SlashCommandStringOption()
-                        .setName("system_instruction")
-                        .setDescription("The system instruction to choose")
-                        .setRequired(false)
-                        .addChoices(
-                            {
-                                name: "Default",
-                                value: "default"
-                            },
-                            ...config.selectable_system_instructions!.slice(0, 24).map(i => ({
-                                name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
-                                value: i.name!.toLowerCase()
-                            }))
-                        )
-                    )
-                }
-                return o;
-            }
+                .addStringOption(
+                    new SlashCommandStringOption()
+                    .setName("system_instruction")
+                    .setDescription("The system instruction to choose")
+                    .setRequired(false)
+                    .setAutocomplete(true)
+                )
         )
     }
 
     if(config.features?.chat_thread) {
         command_data
         .addSubcommand(
-            o => {
-                o
-                .setName("thread")
-                .setDescription("Start a thread for chatting with ChatGPT")
-                .addStringOption(
-                    new SlashCommandStringOption()
-                    .setName("message")
-                    .setDescription("The message to send to the AI")
-                    .setRequired(true)
-                    .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
-                )
-                
-                if(config.selectable_system_instructions?.length) {
-                    o.addStringOption(
-                        new SlashCommandStringOption()
-                        .setName("system_instruction")
-                        .setDescription("The system instruction to choose")
-                        .setRequired(false)
-                        .addChoices(
-                            {
-                                name: "Default",
-                                value: "default"
-                            },
-                            ...config.selectable_system_instructions!.slice(0, 24).map(i => ({
-                                name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
-                                value: i.name!.toLowerCase()
-                            }))
-                        )
-                    )
-                }
-                return o;
-            }
+            new SlashCommandSubcommandBuilder()
+            .setName("thread")
+            .setDescription("Start a thread for chatting with ChatGPT")
+            .addStringOption(
+                new SlashCommandStringOption()
+                .setName("message")
+                .setDescription("The message to send to the AI")
+                .setRequired(true)
+                .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
+            )
+            .addStringOption(
+                new SlashCommandStringOption()
+                .setName("system_instruction")
+                .setDescription("The system instruction to choose")
+                .setRequired(false)
+                .setAutocomplete(true)
+            )
         )
     }
     
@@ -116,6 +88,7 @@ export default class extends Command {
         const message = ctx.interaction.options.getString("message", true)
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
         const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name.toLowerCase())?.system_instruction
+        if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
         const messages = []
 
         if(system_instruction?.length) messages.push({role: "system", content: system_instruction})
@@ -184,6 +157,28 @@ ${system_instruction ?? "NONE"}`,
             await res.reply({
                 embeds: [devembed]
             })
+        }
+    }
+
+    override async autocomplete(ctx: AutocompleteContext): Promise<any> {
+        const focused = ctx.interaction.options.getFocused(true)
+        switch(focused.name) {
+            case "system_instruction": {
+                let instructions = [
+                    {
+                        name: "Default",
+                        value: "default"
+                    },
+                    ...(ctx.client.config.selectable_system_instructions?.slice(0, 24).map(i => ({
+                        name: `${i.name![0]?.toUpperCase()}${i.name!.slice(1).toLowerCase()}`,
+                        value: i.name!
+                    })) ?? [])
+                ]
+
+                if(focused.value) instructions = instructions.filter(o => o.name.includes(focused.value))
+
+                return ctx.interaction.respond(instructions.slice(0, 25))
+            }
         }
     }
 }

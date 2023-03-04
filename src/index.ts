@@ -54,7 +54,6 @@ client.on("ready", async () => {
 
     if(client.config.selectable_system_instructions?.length && client.config.selectable_system_instructions.some(i => !i.name || !i.system_instruction)) throw new Error("Every selectable system instruction needs a name and a system_instruction")
     if(client.config.selectable_system_instructions?.length && client.config.selectable_system_instructions.some(i => i.name === "default")) throw new Error("You can't name your system instruction 'default'")
-    if(client.config.selectable_system_instructions?.length && client.config.selectable_system_instructions.length > 24) throw new Error("You can only have 24 selectable system instructions")
 
     setInterval(async () => {
         await connection.query("DELETE FROM chats WHERE created_at <= CURRENT_TIMESTAMP - interval '1 month'").catch(console.error)
