@@ -127,7 +127,7 @@ export interface Config {
         frequency_penalty?: number,
         max_input_chars?: number
     },
-    selectable_system_inctructions?: {
+    selectable_system_instructions?: {
         name?: string,
         system_instruction?: string
     }[]

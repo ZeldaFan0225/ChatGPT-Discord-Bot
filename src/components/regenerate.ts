@@ -22,7 +22,7 @@ export default class extends Component {
         const [message] = interaction_message.embeds[0]?.description.split("\n\n")
         if(!message?.length) return ctx.interaction.deferUpdate()
         const system_instruction_name = interaction_message.embeds[0]?.description.matchAll(/\*\*ChatGPT \((?<name>[A-Z a-z0-9_-]+)\)\:\*\*/g)?.next()?.value?.groups?.name ?? "default"
-        const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_inctructions?.find(i => i.name?.toLowerCase() === system_instruction_name)?.system_instruction
+        const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name)?.system_instruction
         const messages = []
 
         await interaction_message.react("⌛")

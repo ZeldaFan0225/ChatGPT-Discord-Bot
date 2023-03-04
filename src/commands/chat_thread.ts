@@ -24,7 +24,7 @@ export default class extends Command {
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
         const system_inctruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
-        const system_instruction = system_inctruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_inctructions?.find(i => i.name?.toLowerCase() === system_inctruction_name)?.system_instruction
+        const system_instruction = system_inctruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_inctruction_name)?.system_instruction
         const messages = []
 
         if(ctx.interaction.channel?.isThread()) {

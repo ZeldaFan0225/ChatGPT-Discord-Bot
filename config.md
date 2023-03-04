@@ -19,7 +19,7 @@ Here you can see an explanation of what which option does
         "frequency_penalty": The frequency_penalty for the request (NUMBER) *1,
         "max_input_chars":  The max characters for the request (NUMBER) *4
     },
-    "selectable_system_inctructions": An array of selectable system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
+    "selectable_system_instructions": An array of selectable system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
     "logs": {
         "enabled": Whether logging is enabled or not (BOOLEAN),
         "directory": The directory where the logging files are saved to (STRING),
