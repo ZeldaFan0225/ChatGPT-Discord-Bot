@@ -8,7 +8,7 @@ export default class extends Component {
         super({
             name: "delete",
             staff_only: false,
-            regex: /delete/
+            regex: /^delete$/
         })
     }
 
