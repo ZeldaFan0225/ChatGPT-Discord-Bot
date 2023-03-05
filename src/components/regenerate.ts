@@ -37,7 +37,7 @@ export default class extends Component {
         const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
-        const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content ?? "Hi there"}`
+        const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}`
         let payload: InteractionEditReplyOptions = {
             embeds: [],
             files: [],
@@ -57,7 +57,7 @@ export default class extends Component {
 
             payload.embeds = [embed]
         } else {
-            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.tag}:\n${message}\n\nChatGPT (${system_instruction_name}):\n${data.choices[0]?.message.content ?? "Hi there"}\n\nThis response has been generated using OpenAIs GPT-3.5 model`), {name: `${data.id}.txt`})
+            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.tag}:\n${message}\n\nChatGPT (${system_instruction_name}):\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs GPT-3.5 model`), {name: `${data.id}.txt`})
             payload.content = "Result attached below"
             payload.files = [attachment]
         }
