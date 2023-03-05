@@ -42,7 +42,7 @@ export default class extends Command {
 
         const embed = new EmbedBuilder({
             title: "Spent tokens leaderboard",
-            description: lines.join("\n") + `\n\n**Total Tokens** \`${total?.rows?.[0].total ?? 0}\` (about \`${Math.round(Number(total?.rows?.[0].total ?? 0)/10 * 0.002)/100}$\`)\nAll prices are based on estimations, no guarantees that they are right.`,
+            description: `${lines.join("\n")}\n\n**Total Tokens** \`${total?.rows?.[0].total ?? 0}\` (about \`${Math.round(Number(total?.rows?.[0].total ?? 0)/10 * 0.002)/100}$\`)\nAll prices are based on estimations, no guarantees that they are right.`.slice(0, 4000),
             color: Colors.Green
         })
 
