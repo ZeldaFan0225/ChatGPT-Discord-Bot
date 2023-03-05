@@ -114,6 +114,7 @@ export interface OpenAIModerationResponse {
 export interface Config {
     staff_roles?: string[],
     staff_users?: string[],
+    staff_can_bypass_feature_restrictions?: boolean,
     dev?: boolean,
     global_user_cooldown?: number,
     max_thread_folowup_length?: number

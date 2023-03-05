@@ -12,7 +12,7 @@ const command_data = new SlashCommandBuilder()
     .setDMPermission(false)
     .setDescription(`View a system instruction`)
 
-    if(config.selectable_system_instructions?.length) {
+    if(config.selectable_system_instructions?.length || config.staff_can_bypass_feature_restrictions) {
         command_data.addStringOption(
             new SlashCommandStringOption()
             .setName("system_instruction")
@@ -33,7 +33,7 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
-        if(!ctx.client.config.features?.view_system_instruction) return ctx.error({error: "This command is disabled"})
+        if(!ctx.client.config.features?.view_system_instruction && !ctx.can_staff_bypass) return ctx.error({error: "This command is disabled"})
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
         const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name)?.system_instruction
         if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})

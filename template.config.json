@@ -5,6 +5,7 @@
     "staff_users": [
         
     ],
+    "staff_can_bypass_feature_restrictions": true,
     "dev": true,
     "global_user_cooldown": 60000,
     "max_thread_folowup_length": 5,

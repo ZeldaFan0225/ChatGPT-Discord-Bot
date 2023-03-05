@@ -1,11 +1,13 @@
 # Configuration
 
-Here you can see an explanation of what which option does
+Here you can see an explanation of what which option does.  
+To see an example look at our [template.config.json](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/template.config.json).
 
 ```
 {
     "staff_roles": The roles which your staff have. This will bypass filters and cooldowns (ARRAY OF ROLE IDS),
     "staff_users": The staff users who don't have any of the staff roles. This will bypass filters and cooldowns (ARRAY OF USER IDS),
+    "staff_can_bypass_feature_restrictions": When set to true staff won't be restricted by features turned off (BOOLEAN) *4,
     "dev": Whether this is a development instance or not (BOOLEAN) *3,
     "global_user_cooldown": The time until a user can send a new request in milliseconds (NUMBER),
     "max_thread_folowup_length": The amount of followup prompts a user can send in a thread (NUMBER),

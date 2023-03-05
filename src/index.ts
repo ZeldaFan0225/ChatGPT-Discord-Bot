@@ -87,6 +87,5 @@ client.on("interactionCreate", async (interaction) => {
 })
 
 client.on("threadDelete", async (thread) => {
-    console.log(thread.id)
     await connection.query("DELETE FROM chats WHERE id=$1", [thread.id])
 })

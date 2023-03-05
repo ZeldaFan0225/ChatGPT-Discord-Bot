@@ -23,7 +23,7 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
-        if(!ctx.client.config.features?.user_stats || !ctx.client.config.features?.user_leaderboard) return ctx.error({error: "This command is disabled"})
+        if((!ctx.client.config.features?.user_stats || !ctx.client.config.features?.user_leaderboard) && !ctx.can_staff_bypass) return ctx.error({error: "This command is disabled"})
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         await ctx.interaction.deferReply()
         const leaders_query = await ctx.database.query("SELECT * FROM user_data ORDER BY tokens DESC LIMIT 10").catch(console.error)
@@ -36,7 +36,7 @@ export default class extends Command {
         if(!leaders.find(l => l.user_id === ctx.interaction.user.id)) leaders.push(own_query.rows[0])
         
         const lines = await Promise.all(leaders.map(async (l, i) => {
-            const user = await ctx.client.users.fetch(l.user_id).catch(console.log)
+            const user = await ctx.client.users.fetch(l.user_id).catch(console.error)
             return `${i == 10 ? "...\n" : ""}${i == 0 ? "👑" : ""}**${user?.tag ?? "Unknown User#0001"}** \`${l.tokens}\` Tokens (about \`${Math.round(l.tokens/10 * 0.002)/100}$\`)`
         }))
 
@@ -50,7 +50,7 @@ export default class extends Command {
             embeds: [embed]
         }
 
-        if(ctx.client.config.features.delete_button) payload.components = [{
+        if(ctx.client.config.features?.delete_button || ctx.can_staff_bypass) payload.components = [{
             type: 1,
             components: [delete_button]
         }]

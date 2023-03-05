@@ -12,7 +12,7 @@ const command_data = new SlashCommandBuilder()
     .setDMPermission(false)
     .setDescription(`Start chatting with the AI`)
 
-    if(config.features?.chat_single) {
+    if(config.features?.chat_single || config.staff_can_bypass_feature_restrictions) {
         command_data
         .addSubcommand(
             new SlashCommandSubcommandBuilder()
@@ -35,7 +35,7 @@ const command_data = new SlashCommandBuilder()
         )
     }
 
-    if(config.features?.chat_thread) {
+    if(config.features?.chat_thread || config.staff_can_bypass_feature_restrictions) {
         command_data
         .addSubcommand(
             new SlashCommandSubcommandBuilder()
@@ -82,7 +82,7 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
-        if(!ctx.client.config.features?.chat_single) return ctx.error({error: "This command is disabled"})
+        if(!ctx.client.config.features?.chat_single && !ctx.can_staff_bypass) return ctx.error({error: "This command is disabled"})
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         const message = ctx.interaction.options.getString("message", true)
@@ -108,14 +108,14 @@ export default class extends Command {
         const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content ?? "Hi there"}`
         let payload: InteractionEditReplyOptions = {}
 
-        if(ctx.client.config.features.delete_button || ctx.client.config.features.regenerate_button) {
+        if((ctx.client.config.features?.delete_button || ctx.client.config.features?.regenerate_button) || ctx.can_staff_bypass) {
             const components: {type: 1, components: ButtonBuilder[]}[] = [{
                 type: 1,
                 components: []
             }]
 
-            if(ctx.client.config.features.regenerate_button) components[0]!.components.push(regenerate_button)
-            if(ctx.client.config.features.delete_button) components[0]!.components.push(delete_button)
+            if(ctx.client.config.features?.regenerate_button || ctx.can_staff_bypass) components[0]!.components.push(regenerate_button)
+            if(ctx.client.config.features?.delete_button || ctx.can_staff_bypass) components[0]!.components.push(delete_button)
 
             payload.components = components
         }
