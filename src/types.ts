@@ -146,5 +146,6 @@ export interface Config {
         view_system_instruction?: boolean,
         user_stats?: boolean,
         user_leaderboard?: boolean
-    }
+    },
+    leaderboard_amount_users?: 10
 }

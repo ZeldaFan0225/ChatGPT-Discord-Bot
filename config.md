@@ -36,7 +36,8 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "view_system_instruction": Whether this feature is enabled or not (BOOLEAN) *4,
         "user_stats": Whether to record user stats or not,
         "user_leaderboard": Whether this feature is enabled or not (BOOLEAN) *4
-    }
+    },
+    "leaderboard_amount_users": How many users to display on the leaderboard (NUMBER)
 }
 ```
 

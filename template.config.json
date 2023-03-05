@@ -39,5 +39,6 @@
         "view_system_instruction": true,
         "user_stats": true,
         "user_leaderboard": true
-    }
+    },
+    "leaderboard_amount_users": 10
 }

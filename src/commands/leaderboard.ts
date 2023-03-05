@@ -26,7 +26,7 @@ export default class extends Command {
         if((!ctx.client.config.features?.user_stats || !ctx.client.config.features?.user_leaderboard) && !ctx.can_staff_bypass) return ctx.error({error: "This command is disabled"})
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         await ctx.interaction.deferReply()
-        const leaders_query = await ctx.database.query("SELECT * FROM user_data ORDER BY tokens DESC LIMIT 10").catch(console.error)
+        const leaders_query = await ctx.database.query(`SELECT * FROM user_data ORDER BY tokens DESC LIMIT ${ctx.client.config.leaderboard_amount_users || 10}`).catch(console.error)
         const own_query = await ctx.database.query("SELECT * FROM user_data WHERE user_id=$1", [ctx.interaction.user.id]).catch(console.error)
         const total = await ctx.database.query("SELECT SUM(tokens) as total FROM user_data").catch(console.error)
         
