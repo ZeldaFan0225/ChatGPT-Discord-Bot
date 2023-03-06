@@ -78,12 +78,14 @@ export class ChatGPTBotClient extends Client {
 		return !!res?.rowCount
 	}
 
-	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string, database: Pool) {
+	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string, database: Pool, override_options?: {
+		temperature?: number
+	}) {
 		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
         .body({
             model: "gpt-3.5-turbo",
             messages,
-            temperature: this.config.generation_parameters?.temperature,
+            temperature: override_options?.temperature ?? this.config.generation_parameters?.temperature,
             top_p: this.config.generation_parameters?.top_p,
             frequency_penalty: this.config.generation_parameters?.frequency_penalty,
             presence_penalty: this.config.generation_parameters?.presence_penalty,

@@ -37,8 +37,10 @@
         "regenerate_button": true,
         "delete_button": true,
         "view_system_instruction": true,
+        "englishify": true,
         "user_stats": true,
         "user_leaderboard": true
     },
-    "leaderboard_amount_users": 10
+    "leaderboard_amount_users": 10,
+    "englishify_system_instruction": "You are a translation tool. You translate into good english."
 }

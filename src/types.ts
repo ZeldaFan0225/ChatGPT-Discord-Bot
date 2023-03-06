@@ -144,8 +144,10 @@ export interface Config {
         regenerate_button?: boolean,
         delete_button?: boolean,
         view_system_instruction?: boolean,
+        englishify?: boolean,
         user_stats?: boolean,
         user_leaderboard?: boolean
     },
-    leaderboard_amount_users?: 10
+    leaderboard_amount_users?: number,
+    englishify_system_instruction?: string
 }

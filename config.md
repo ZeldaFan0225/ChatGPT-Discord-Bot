@@ -34,14 +34,17 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "regenerate_button": Whether this feature is enabled or not (BOOLEAN),
         "delete_button": Whether this feature is enabled or not (BOOLEAN),
         "view_system_instruction": Whether this feature is enabled or not (BOOLEAN) *4,
+        "englishify": Whether this feature is enabled or not (BOOLEAN),
         "user_stats": Whether to record user stats or not,
         "user_leaderboard": Whether this feature is enabled or not (BOOLEAN) *4
     },
-    "leaderboard_amount_users": How many users to display on the leaderboard (NUMBER)
+    "leaderboard_amount_users": How many users to display on the leaderboard (NUMBER),
+    "englishify_system_instruction": The system instruction to translate a message (STRING) *5
 }
 ```
 
 `*1` See API Documentation for reference (https://platform.openai.com/docs/api-reference/chat) 
 `*2` See Instructing chat models for reference (https://platform.openai.com/docs/guides/chat/instructing-chat-models)
 `*3` Developer mode will enable logging and will also show the generations ID in the embed in Discord  
-`*4` This option changes how the command is created.
+`*4` This option changes how the command is created.  
+`*5` It is not recommended to change this option.  
