@@ -1,4 +1,4 @@
-import { ApplicationCommandType, AttachmentBuilder, ButtonBuilder, Colors, ContextMenuCommandBuilder, EmbedBuilder, InteractionEditReplyOptions } from "discord.js";
+import { APIButtonComponent, ApplicationCommandType, AttachmentBuilder, ButtonBuilder, Colors, ContextMenuCommandBuilder, EmbedBuilder, InteractionEditReplyOptions } from "discord.js";
 import { Context } from "../classes/context";
 import { ContextContext } from "../classes/contextContext";
 
@@ -44,13 +44,24 @@ export default class extends Context {
         if(!data) return ctx.error({error: "Something went wrong"})
         
         const description = `**ChatGPT:**\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}`
-        let payload: InteractionEditReplyOptions = {}
-
+        const comps: APIButtonComponent[] = [
+            {
+                type: 2,
+                style: 5,
+                url: ctx.interaction.targetMessage.url,
+                label: "Jump to Message"
+            }
+        ]
+        
         if(ctx.client.config.features?.delete_button || ctx.can_staff_bypass) 
-            payload.components =  [{
+            comps.push(delete_button.toJSON())
+
+        let payload: InteractionEditReplyOptions = {
+            components: [{
                 type: 1,
-                components: [delete_button]
+                components: comps
             }]
+        }
         
 
         if(description.length < 4000) {
