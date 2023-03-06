@@ -38,7 +38,7 @@
         "delete_button": true,
         "view_system_instruction": true,
         "englishify": true,
-        "context_action_instruction": false,
+        "context_action": false,
         "user_stats": true,
         "user_leaderboard": true
     },
