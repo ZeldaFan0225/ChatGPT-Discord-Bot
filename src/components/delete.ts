@@ -20,6 +20,6 @@ export default class extends Component {
         if(message.interaction?.commandName === "chat thread") {
             await message.thread?.delete()
         }
-        await message.delete()
+        await ctx.interaction.deleteReply()
     }
 }
