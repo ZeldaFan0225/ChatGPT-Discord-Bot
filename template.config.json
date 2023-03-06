@@ -38,9 +38,11 @@
         "delete_button": true,
         "view_system_instruction": true,
         "englishify": true,
+        "context_action_instruction": false,
         "user_stats": true,
         "user_leaderboard": true
     },
     "leaderboard_amount_users": 10,
-    "englishify_system_instruction": "You are a translation tool. You translate into good english."
+    "englishify_system_instruction": "You are a translation tool. You translate into good english.",
+    "context_action_instruction": "<Insert your context actions system instruction here>"
 }

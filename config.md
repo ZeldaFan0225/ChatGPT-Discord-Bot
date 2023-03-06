@@ -35,6 +35,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "delete_button": Whether this feature is enabled or not (BOOLEAN),
         "view_system_instruction": Whether this feature is enabled or not (BOOLEAN) *4,
         "englishify": Whether this feature is enabled or not (BOOLEAN),
+        "context_action_instruction": Whether this feature is enabled or not (BOOLEAN) *6,
         "user_stats": Whether to record user stats or not,
         "user_leaderboard": Whether this feature is enabled or not (BOOLEAN) *4
     },
@@ -48,3 +49,4 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*3` Developer mode will enable logging and will also show the generations ID in the embed in Discord  
 `*4` This option changes how the command is created.  
 `*5` It is not recommended to change this option.  
+`*6` It is not recommended to change this option.  

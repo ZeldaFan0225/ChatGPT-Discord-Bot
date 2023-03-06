@@ -145,9 +145,11 @@ export interface Config {
         delete_button?: boolean,
         view_system_instruction?: boolean,
         englishify?: boolean,
+        context_action?: boolean,
         user_stats?: boolean,
         user_leaderboard?: boolean
     },
     leaderboard_amount_users?: number,
-    englishify_system_instruction?: string
+    englishify_system_instruction?: string,
+    context_action_instruction?: string
 }
