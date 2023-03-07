@@ -1,6 +1,6 @@
 # Update Instructions
 
-## 1.1.0 => 1.1.0
+## 1.1.0 => 1.2.0
 
 Run following queries on your postgres database:  
 
