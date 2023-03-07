@@ -25,10 +25,10 @@ export async function handleComponents(interaction: ButtonInteraction | AnySelec
             error: "You are not staff"
         })
 
-    if(!context.is_staff && await context.client.checkBlacklist(interaction.user.id, database))
+    if(!context.is_staff && (context.has_blacklisted_role || await context.client.checkBlacklist(interaction.user.id, database)))
         return await context.error({
             error: "You have been blacklisted"
         })
-        
+
     return await command.run(context).catch(console.error)
 }

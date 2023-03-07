@@ -18,9 +18,13 @@ The bot has the following features:
 - /chat thread - Creates a thread as the response to a generation request. Followup prompts can be sent
 - /info - shows information about the bot
 - /terms - To make users agree to the terms of service before allowing them to generate responses
+- /leaderboard - To see who generated the most tokens
+- /view_system_instructions - To see the text for a selectable system instructions
+- Translate to English - Context command to translate a users message to grammatically correct english
 - control over allowed frequency of users requests
 - advanced configuration
 - logging to detect tos-breaking prompts
+- ability to blacklist
 
 If you want some inspiration on system instructions for the GPT-3.5 model you can view [my repository](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot-System-Instructions) for it.  
 

@@ -1,9 +1,12 @@
 {
     "staff_roles": [
-        "926795718222553098"
+        
     ],
     "staff_users": [
         
+    ],
+    "blacklist_roles": [
+
     ],
     "staff_can_bypass_feature_restrictions": true,
     "dev": true,

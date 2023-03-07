@@ -13,7 +13,7 @@ export async function handleAutocomplete(interaction: AutocompleteInteraction, c
         return await context.error()
     if(command.staff_only && !context.is_staff)
         return await context.error()
-    if(!context.is_staff && await context.client.checkBlacklist(interaction.user.id, database))
+    if(!context.is_staff && (context.has_blacklisted_role || await context.client.checkBlacklist(interaction.user.id, database)))
         return await context.error()
     return await command.autocomplete(context).catch(console.error)
 }
