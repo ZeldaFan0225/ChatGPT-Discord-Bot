@@ -21,9 +21,13 @@ export async function handleContexts(interaction: UserContextMenuCommandInteract
             error: "Please add me to the private thread (by mentioning me) to use commands",
             ephemeral: true
         })
-        if(command.staff_only && !context.is_staff)
+    if(command.staff_only && !context.is_staff)
         return await context.error({
             error: "You are not staff"
+        })
+    if(!context.is_staff && await context.client.checkBlacklist(interaction.user.id, database))
+        return await context.error({
+            error: "You have been blacklisted"
         })
 
     return await command.run(context).catch(console.error)

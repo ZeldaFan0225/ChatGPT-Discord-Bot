@@ -21,21 +21,12 @@ export default class extends Command {
         const embed = new EmbedBuilder({
             title: "Delete data saved about you",
             color: Colors.Red,
-            description: `Data which can be deleted:\n- The data that you agreed to the terms\n\nData which can't be deleted:\n- Prompts which you used to generate text\n- Any further logging\n\nData which will be automatically deleted:\n- Conversations created with ${await ctx.client.getSlashCommandTag("chat thread")} (30 days)\n\nTo delete deletable data press the button below. There will not be any further confirmation and the action **can not** be undone!`
+            description: `Data which can't be deleted:\n- Amount of tokens generated\n- Analytic data\n- Prompts which you used to generate text\n- Any further logging\n\nData which will be automatically deleted:\n- Conversations created with ${await ctx.client.getSlashCommandTag("chat thread")} (30 days)\n\nIf you require deletion of all data contact the owner of the bot.`
         })
 
         return ctx.interaction.reply({
             ephemeral: true,
-            embeds: [embed],
-            components: [{
-                type: 1,
-                components: [{
-                    type: 2,
-                    label: "Delete Data",
-                    style: 4,
-                    custom_id: "delete_data"
-                }]
-            }]
+            embeds: [embed]
         })
     }
 }

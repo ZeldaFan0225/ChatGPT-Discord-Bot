@@ -13,7 +13,7 @@ export default class extends Component {
     }
 
     override async run(ctx: ComponentContext<ComponentType.Button>): Promise<any> {
-        const insert = await ctx.database.query("INSERT INTO user_data (user_id) VALUES ($1) ON CONFLICT (user_id) DO UPDATE SET user_id=$1 RETURNING *", [ctx.interaction.user.id]).catch(console.error)
+        const insert = await ctx.database.query("INSERT INTO user_data (user_id) VALUES ($1) ON CONFLICT (user_id) DO UPDATE SET consent=true RETURNING *", [ctx.interaction.user.id]).catch(console.error)
         if(!insert?.rowCount) return ctx.error({error: "Unable to accept terms"})
 
         ctx.client.cache.set(ctx.interaction.user.id, true, 1000 * 60)

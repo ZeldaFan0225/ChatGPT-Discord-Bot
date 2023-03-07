@@ -14,6 +14,7 @@ export class ChatGPTBotClient extends Client {
     config: Config
 	cooldown: SuperMap<string, any>
 	cache: SuperMap<string, boolean>
+	blacklisted: SuperMap<string, boolean>
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -26,6 +27,9 @@ export class ChatGPTBotClient extends Client {
 			intervalTime: 1000
 		})
 		this.cache = new SuperMap({
+			intervalTime: 1000
+		})
+		this.blacklisted = new SuperMap({
 			intervalTime: 1000
 		})
         this.loadConfig()
@@ -73,8 +77,16 @@ export class ChatGPTBotClient extends Client {
 	async checkConsent(user_id: string, database: Pool) {
 		if(this.cache.has(user_id)) return this.cache.get(user_id)
 
-		const res = await database.query("SELECT * FROM user_data WHERE user_id=$1", [user_id]).catch(console.error)
+		const res = await database.query("SELECT * FROM user_data WHERE user_id=$1 AND consent", [user_id]).catch(console.error)
 		this.cache.set(user_id, !!res?.rowCount, 1000 * 60)
+		return !!res?.rowCount
+	}
+
+	async checkBlacklist(user_id: string, database: Pool) {
+		if(this.blacklisted.has(user_id)) return this.blacklisted.get(user_id)
+
+		const res = await database.query("SELECT * FROM user_data WHERE user_id=$1 AND blacklisted", [user_id]).catch(console.error)
+		this.blacklisted.set(user_id, !!res?.rowCount, 1000 * 60)
 		return !!res?.rowCount
 	}
 

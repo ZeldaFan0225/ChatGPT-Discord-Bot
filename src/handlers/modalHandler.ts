@@ -12,6 +12,10 @@ export async function handleModals(interaction: ModalSubmitInteraction, client: 
         return await context.error({
             error: "You are not staff"
         })
+    if(!context.is_staff && await context.client.checkBlacklist(interaction.user.id, database))
+        return await context.error({
+            error: "You have been blacklisted"
+        })
 
     return await command.run(context).catch(console.error)
 }
