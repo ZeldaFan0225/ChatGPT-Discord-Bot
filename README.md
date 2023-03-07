@@ -45,5 +45,5 @@ Now if everything is set up it should start and give an output in the console.
 ## How to update
 
 1) Pull the code from this repository
-2) Update your config. Reading through the [changelog](https://github.com/ZeldaFan0225/AI_Horde_Discord/blob/main/changelog.md) might help.
-3) Follow the [update instructions](https://github.com/ZeldaFan0225/AI_Horde_Discord/blob/main/update_instructions.md) for the version you are updating to. Make sure to follow all steps from your current version to the version you are updating to (e.g. 1.0.0 => 1.1.0 and 1.1.0 => 1.2.0).
+2) Update your config. Reading through the [changelog](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/changelog.md) might help.
+3) Follow the [update instructions](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/update_instructions.md) for the version you are updating to. Make sure to follow all steps from your current version to the version you are updating to (e.g. 1.0.0 => 1.1.0 and 1.1.0 => 1.2.0).
