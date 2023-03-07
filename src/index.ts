@@ -38,10 +38,7 @@ if(client.config.logs?.enabled) {
 
 client.on("ready", async () => {
     await connection.connect().then(async () => {
-        //console.log(await connection.query("ALTER TABLE user_data ADD COLUMN tokens int NOT NULL DEFAULT 0"))
-
-        //console.log(await connection.query("ALTER TABLE user_data ADD COLUMN consent bool DEFAULT true"))
-        //console.log(await connection.query("ALTER TABLE user_data ADD COLUMN blacklisted bool DEFAULT false"))
+        //console.log(await connection.query("ALTER TABLE user_data ADD COLUMN"))
 
         await connection.query("CREATE TABLE IF NOT EXISTS user_data (index SERIAL, user_id VARCHAR(100) PRIMARY KEY, consent bool DEFAULT true, tokens int NOT NULL DEFAULT 0, blacklisted bool DEFAULT false)")
         await connection.query("CREATE TABLE IF NOT EXISTS chats (index SERIAL, id VARCHAR(100) PRIMARY KEY, user_id VARCHAR(100) NOT NULL, messages JSON[] DEFAULT '{}', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
