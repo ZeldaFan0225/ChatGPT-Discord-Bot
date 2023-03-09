@@ -37,7 +37,7 @@ export default class extends Command {
         
         const lines = await Promise.all(leaders.map(async (l, i) => {
             const user = await ctx.client.users.fetch(l.user_id).catch(console.error)
-            return `${i == 10 ? "...\n" : ""}${i == 0 ? "👑" : ""}**${user?.tag ?? "Unknown User#0001"}** \`${l.tokens}\` Tokens (about \`${Math.round(l.tokens/10 * 0.002)/100}$\`)`
+            return `${i == (ctx.client.config.leaderboard_amount_users || 10) ? "...\n" : ""}${i == 0 ? "👑" : ""}**${user?.tag ?? "Unknown User#0001"}** \`${l.tokens}\` Tokens (about \`${Math.round(l.tokens/10 * 0.002)/100}$\`)`
         }))
 
         const embed = new EmbedBuilder({
