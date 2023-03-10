@@ -1,6 +1,10 @@
 # Update Instructions
 
-## 1.1.0 => 1.2.0
+# 1.2.0 => 1.3.0
+
+No special actions are required to perform this update.
+
+# 1.1.0 => 1.2.0
 
 Run following queries on your postgres database:  
 
