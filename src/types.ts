@@ -112,6 +112,7 @@ export interface OpenAIModerationResponse {
 }
 
 export interface Config {
+    owner_ids?: string[]
     staff_roles?: string[],
     staff_users?: string[],
     blacklist_roles?: string[],

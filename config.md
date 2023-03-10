@@ -5,6 +5,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 
 ```
 {
+    "owner_ids": The ids of the owners discord account(s),
     "staff_roles": The roles which your staff have. This will bypass filters and cooldowns (ARRAY OF ROLE IDS),
     "staff_users": The staff users who don't have any of the staff roles. This will bypass filters and cooldowns (ARRAY OF USER IDS),
     "blacklist_roles": Blacklist users based on their roles. Staff have full bypass (ARRAY OF ROLE IDS),
