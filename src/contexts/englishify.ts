@@ -72,12 +72,12 @@ export default class extends Context {
                 },
                 description,
                 color: Colors.Green,
-                footer: {text: `Translation with OpenAIs GPT-3.5 model requested by ${ctx.interaction.user.tag}`, icon_url: ctx.interaction.user.displayAvatarURL()}
+                footer: {text: `Translation with OpenAIs Chat Completion API requested by ${ctx.interaction.user.tag}`, icon_url: ctx.interaction.user.displayAvatarURL()}
             })
 
             payload.embeds = [embed]
         } else {
-            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.targetMessage.author.tag}:\n${ctx.interaction.targetMessage.content}\n\nChatGPT:\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs GPT-3.5 model.\nThe translation has been requested by ${ctx.interaction.user.tag}`), {name: `${data.id}.txt`})
+            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.targetMessage.author.tag}:\n${ctx.interaction.targetMessage.content}\n\nChatGPT:\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API.\nThe translation has been requested by ${ctx.interaction.user.tag}`), {name: `${data.id}.txt`})
             payload.content = "Result attached below"
             payload.files = [attachment]
         }

@@ -21,7 +21,7 @@ export default class extends Command {
         const embed = new EmbedBuilder({
             title: "Info",
             color: Colors.Blue,
-            description: `This bot acts as an interface with the OpenAI GPT-3.5 turbo model.\nThis bot is open source and can be viewed on [GitHub](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot).\n**There is no guarantee that this instance of the bot is unmodified**\n\nCurrent configuration:\n**Logging** ${ctx.client.config.logs?.enabled ? "Enabled" : "Disabled"}`
+            description: `This bot acts as an interface with the OpenAI Chat Completion API.\nThis bot is open source and can be viewed on [GitHub](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot).\n**There is no guarantee that this instance of the bot is unmodified**\n\nCurrent configuration:\n**Logging** ${ctx.client.config.logs?.enabled ? "Enabled" : "Disabled"}`
         })
 
         return ctx.interaction.reply({

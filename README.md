@@ -1,6 +1,6 @@
 # ChatGPT-Discord-Bot
 
-A basic Discord bot to generate chat completions using OpenAIs GPT-3.5 turbo model.
+A basic Discord bot to generate chat completions using OpenAIs Chat Completion API.
 
 **DISCLAIMER:** THIS REPOSITORY IS IN NO WAY ASSOCIATED TO OPENAI  
 OFFERING THIS CODE IN FORM OF A PUBLIC DISCORD BOT WHICH CAN BE INVITED BY EVERYBODY IS NOT SUPPORTED.  
@@ -26,7 +26,7 @@ The bot has the following features:
 - logging to detect tos-breaking prompts
 - ability to blacklist
 
-If you want some inspiration on system instructions for the GPT-3.5 model you can view [my repository](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot-System-Instructions) for it.  
+If you want some inspiration on system instructions for the GPT model you can view [my repository](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot-System-Instructions) for it.  
 
 ## Version Requirements
 

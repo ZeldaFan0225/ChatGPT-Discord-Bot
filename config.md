@@ -9,6 +9,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     "staff_roles": The roles which your staff have. This will bypass filters and cooldowns (ARRAY OF ROLE IDS),
     "staff_users": The staff users who don't have any of the staff roles. This will bypass filters and cooldowns (ARRAY OF USER IDS),
     "blacklist_roles": Blacklist users based on their roles. Staff have full bypass (ARRAY OF ROLE IDS),
+    "default_model": The default model to use. Model must support chat completion (STRING) *8,
     "staff_can_bypass_feature_restrictions": When set to true staff won't be restricted by features turned off (BOOLEAN) *4,
     "dev": Whether this is a development instance or not (BOOLEAN) *3,
     "global_user_cooldown": The time until a user can send a new request in milliseconds (NUMBER),
@@ -42,7 +43,14 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "user_leaderboard": Whether this feature is enabled or not (BOOLEAN) *4
     },
     "leaderboard_amount_users": How many users to display on the leaderboard (NUMBER),
-    "englishify_system_instruction": The system instruction to translate a message (STRING) *5
+    "englishify_system_instruction": The system instruction to translate a message (STRING) *5,
+    "context_action_instruction": The system instruction for the context action (STRING),
+    "costs": {
+        "MODEL NAME": {
+            "prompt": The cost for prompt tokens,
+            "completion": The cost for completion tokens
+        }
+    }
 }
 ```
 
@@ -51,4 +59,6 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*3` Developer mode will enable logging and will also show the generations ID in the embed in Discord  
 `*4` This option changes how the command is created.  
 `*5` It is not recommended to change this option.  
-`*6` It is not recommended to change this option.  
+`*6` Configuration of `context_action_instruction` is advised.  
+`*7` Prices for models to save money spent by users. [Read more about pricing](https://openai.com/pricing)
+`*8` See API Documentation for compatibility. [Read more](https://platform.openai.com/docs/models/model-endpoint-compatibility)

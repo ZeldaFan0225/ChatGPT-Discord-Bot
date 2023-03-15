@@ -77,6 +77,7 @@ export interface OpenAIChatCompletionResponse {
     id: string,
     object: string,
     created: number,
+    model: string,
     choices: {
         index: number,
         message: {
@@ -118,6 +119,7 @@ export interface Config {
     staff_roles?: string[],
     staff_users?: string[],
     blacklist_roles?: string[],
+    default_model?: string,
     staff_can_bypass_feature_restrictions?: boolean,
     dev?: boolean,
     global_user_cooldown?: number,
@@ -155,5 +157,9 @@ export interface Config {
     },
     leaderboard_amount_users?: number,
     englishify_system_instruction?: string,
-    context_action_instruction?: string
+    context_action_instruction?: string,
+    costs?: Record<string, {
+        prompt?: number,
+        completion?: number
+    }>
 }

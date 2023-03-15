@@ -28,7 +28,7 @@ export default class extends Command {
         await ctx.interaction.deferReply()
         const leaders_query = await ctx.database.query(`SELECT * FROM user_data WHERE user_id != '0' ORDER BY tokens DESC LIMIT ${ctx.client.config.leaderboard_amount_users || 10}`).catch(console.error)
         const own_query = await ctx.database.query("SELECT * FROM user_data WHERE user_id=$1", [ctx.interaction.user.id]).catch(console.error)
-        const total = await ctx.database.query("SELECT SUM(tokens) as total FROM user_data").catch(console.error)
+        const total = await ctx.database.query("SELECT SUM(tokens) as tokens, SUM(cost) as cost FROM user_data").catch(console.error)
         
         if(!leaders_query?.rowCount || !own_query?.rowCount) return ctx.error({error: "Unable to generate leaderboard", codeblock: true})
 
@@ -37,12 +37,12 @@ export default class extends Command {
         
         const lines = await Promise.all(leaders.map(async (l, i) => {
             const user = await ctx.client.users.fetch(l.user_id).catch(console.error)
-            return `${i == (ctx.client.config.leaderboard_amount_users || 10) ? "...\n" : ""}${i == 0 ? "👑" : ""}**${user?.tag ?? "Unknown User#0001"}** \`${l.tokens}\` Tokens (about \`${Math.round(l.tokens/10 * 0.002)/100}$\`)`
+            return `${i == (ctx.client.config.leaderboard_amount_users || 10) ? "...\n" : ""}${i == 0 ? "👑" : ""}**${user?.tag ?? "Unknown User#0001"}** \`${l.tokens}\` Tokens (about \`${Math.round(l.cost * 100)/100}$\`)`
         }))
 
         const embed = new EmbedBuilder({
             title: "Spent tokens leaderboard",
-            description: `${lines.join("\n")}\n\n**Total Tokens** \`${total?.rows?.[0].total ?? 0}\` (about \`${Math.round(Number(total?.rows?.[0].total ?? 0)/10 * 0.002)/100}$\`)\nAll prices are based on estimations, no guarantees that they are right.`.slice(0, 4000),
+            description: `${lines.join("\n")}\n\n**Total Tokens** \`${total?.rows?.[0].tokens ?? 0}\` (about \`${Math.round((total?.rows?.[0].cost ?? 0) * 100)/100}$\`)\nAll prices are based on estimations, no guarantees that they are right.`.slice(0, 4000),
             color: Colors.Green
         })
 

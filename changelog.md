@@ -1,5 +1,11 @@
 # Changelog
 
+## V1.4.0
+
+- change wording to remove GPT 3.5
+- add ability to easily switch to GPT-4
+- change how money spent by users is calculated
+
 ## V1.3.0
 
 - sql command for easy database access

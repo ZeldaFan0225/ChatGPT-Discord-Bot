@@ -91,11 +91,14 @@ export class ChatGPTBotClient extends Client {
 	}
 
 	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string, database: Pool, override_options?: {
-		temperature?: number
+		temperature?: number,
+		model?: string
 	}) {
+		const model = override_options?.model || this.config.default_model || "gpt-3.5-turbo"
+
 		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
         .body({
-            model: "gpt-3.5-turbo",
+            model,
             messages,
             temperature: override_options?.temperature ?? this.config.generation_parameters?.temperature,
             top_p: this.config.generation_parameters?.top_p,
@@ -123,15 +126,22 @@ export class ChatGPTBotClient extends Client {
 
 		if(!data?.id) throw new Error("Unable to generate response")
 		
-        await this.recordSpentTokens(user_id, data.usage.total_tokens ?? 0, database)
+        await this.recordSpentTokens(user_id, {prompt: data.usage.prompt_tokens, completion: data.usage.completion_tokens}, model, database)
 
 		return data
 	}
 
-	async recordSpentTokens(user_id: string, tokens: number, database: Pool) {
+	async recordSpentTokens(user_id: string, tokens: {prompt: number, completion: number}, model: string, database: Pool) {
 		if(!this.config.features?.user_stats) return false;
 
-		const res = await database.query("UPDATE user_data SET tokens = user_data.tokens + $2 WHERE user_id=$1 RETURNING *", [user_id, tokens]).catch(console.error)
+		let cost = 0
+
+		if(this.config.costs?.[model]) {
+			cost += (this.config.costs?.[model]?.prompt || 0) * (tokens.prompt / 1000)
+			cost += (this.config.costs?.[model]?.completion || 0) * (tokens.completion / 1000)
+		}
+
+		const res = await database.query("UPDATE user_data SET tokens=user_data.tokens+$2, cost=user_data.cost+$3 WHERE user_id=$1 RETURNING *", [user_id, (tokens.completion + tokens.prompt), cost]).catch(console.error)
 		return !!res?.rowCount
 	}
 }
