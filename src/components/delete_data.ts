@@ -37,7 +37,7 @@ export default class extends Component {
         }
 
         async function anonymizeTokens() {
-            await ctx.database.query("INSERT INTO user_data (user_id, tokens) VALUES ('0', $1) ON CONFLICT (user_id) DO UPDATE SET tokens=user_data.tokens+$1", [user.tokens])
+            await ctx.database.query("INSERT INTO user_data (user_id, tokens, cost) VALUES ('0', $1, $2) ON CONFLICT (user_id) DO UPDATE SET tokens=user_data.tokens+$1, cost=user_data.cost+$2", [user.tokens, user.cost])
         }
     }
 }
