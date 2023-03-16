@@ -10,6 +10,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     "staff_users": The staff users who don't have any of the staff roles. This will bypass filters and cooldowns (ARRAY OF USER IDS),
     "blacklist_roles": Blacklist users based on their roles. Staff have full bypass (ARRAY OF ROLE IDS),
     "default_model": The default model to use. Model must support chat completion (STRING) *8,
+    "selectable_models": A list of models the users can select from (ARRAY OF ChAT COMPLETION MODEL NAMES) *1 *4
     "staff_can_bypass_feature_restrictions": When set to true staff won't be restricted by features turned off (BOOLEAN) *4,
     "dev": Whether this is a development instance or not (BOOLEAN) *3,
     "global_user_cooldown": The time until a user can send a new request in milliseconds (NUMBER),

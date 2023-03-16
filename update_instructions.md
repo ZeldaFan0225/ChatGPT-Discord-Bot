@@ -1,5 +1,9 @@
 # Update Instructions
 
+# 1.4.0 => 1.4.1
+
+No special actions are required to perform this update.
+
 # 1.3.0 => 1.4.0
 
 Run following queries on your postgres database **in the correct order**:

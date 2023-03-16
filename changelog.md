@@ -1,5 +1,10 @@
 # Changelog
 
+## V1.4.1
+
+- add ability to select model to be used
+- preparations for GPT-4
+
 ## V1.4.0
 
 - change wording to remove GPT 3.5

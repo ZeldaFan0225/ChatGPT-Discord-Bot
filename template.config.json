@@ -12,6 +12,9 @@
 
     ],
     "default_model": "gpt-3.5-turbo",
+    "selectable_models": [
+        "gpt-3.5-turbo"
+    ],
     "staff_can_bypass_feature_restrictions": true,
     "dev": true,
     "global_user_cooldown": 60000,
