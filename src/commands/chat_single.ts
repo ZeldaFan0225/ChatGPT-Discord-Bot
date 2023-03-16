@@ -1,4 +1,4 @@
-import { AttachmentBuilder, ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions, SlashCommandBuilder, SlashCommandStringOption, SlashCommandSubcommandBuilder } from "discord.js";
+import { AttachmentBuilder, ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions, SlashCommandBuilder, SlashCommandStringOption } from "discord.js";
 import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
 import { Config } from "../types";
@@ -15,7 +15,8 @@ const command_data = new SlashCommandBuilder()
     if(config.features?.chat_single || config.staff_can_bypass_feature_restrictions) {
         command_data
         .addSubcommand(
-            new SlashCommandSubcommandBuilder()
+            o => {
+                o
                 .setName("single")
                 .setDescription("Get a single response without the possibility to followup")
                 .addStringOption(
@@ -32,29 +33,60 @@ const command_data = new SlashCommandBuilder()
                     .setRequired(false)
                     .setAutocomplete(true)
                 )
+
+                if(config.selectable_models?.length) {
+                    o.addStringOption(
+                        new SlashCommandStringOption()
+                        .setName("model")
+                        .setDescription("The model to use for this request")
+                        .setRequired(false)
+                        .addChoices(
+                            ...config.selectable_models.map(m => ({value: m, name: m}))
+                        )
+                    )
+                }
+
+                return o;
+            }
         )
     }
 
     if(config.features?.chat_thread || config.staff_can_bypass_feature_restrictions) {
         command_data
         .addSubcommand(
-            new SlashCommandSubcommandBuilder()
-            .setName("thread")
-            .setDescription("Start a thread for chatting with ChatGPT")
-            .addStringOption(
-                new SlashCommandStringOption()
-                .setName("message")
-                .setDescription("The message to send to the AI")
-                .setRequired(true)
-                .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
-            )
-            .addStringOption(
-                new SlashCommandStringOption()
-                .setName("system_instruction")
-                .setDescription("The system instruction to choose")
-                .setRequired(false)
-                .setAutocomplete(true)
-            )
+            o => {
+                o
+                .setName("thread")
+                .setDescription("Start a thread for chatting with ChatGPT")
+                .addStringOption(
+                    new SlashCommandStringOption()
+                    .setName("message")
+                    .setDescription("The message to send to the AI")
+                    .setRequired(true)
+                    .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
+                )
+                .addStringOption(
+                    new SlashCommandStringOption()
+                    .setName("system_instruction")
+                    .setDescription("The system instruction to choose")
+                    .setRequired(false)
+                    .setAutocomplete(true)
+                )
+
+                if(config.selectable_models?.length) {
+                    o.addStringOption(
+                        new SlashCommandStringOption()
+                        .setName("model")
+                        .setDescription("The model to use for this request")
+                        .setRequired(false)
+                        .addChoices(
+                            ...config.selectable_models.map(m => ({value: m, name: m}))
+                        )
+                    )
+                }
+
+                return o;
+            }
         )
     }
     
@@ -89,6 +121,7 @@ export default class extends Command {
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
         const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name.toLowerCase())?.system_instruction
         if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
+        const model = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
         const messages = []
 
         if(system_instruction?.length) messages.push({role: "system", content: system_instruction})
@@ -102,7 +135,9 @@ export default class extends Command {
 
         if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database).catch(console.error)
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, {
+            model
+        }).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
         const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}`

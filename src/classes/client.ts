@@ -95,6 +95,7 @@ export class ChatGPTBotClient extends Client {
 		model?: string
 	}) {
 		const model = override_options?.model || this.config.default_model || "gpt-3.5-turbo"
+		if(this.config.dev) console.log(model)
 
 		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
         .body({

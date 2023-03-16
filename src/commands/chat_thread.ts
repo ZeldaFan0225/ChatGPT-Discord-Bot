@@ -27,6 +27,7 @@ export default class extends Command {
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
         const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name.toLowerCase())?.system_instruction
         if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
+        const model = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
         const messages = []
 
         if(ctx.interaction.channel?.isThread()) {
@@ -46,7 +47,7 @@ export default class extends Command {
 
             if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
-            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database).catch(console.error)
+            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, {model}).catch(console.error)
             if(!ai_data) return ctx.error({error: "Something went wrong"})
 
             if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
@@ -136,7 +137,7 @@ ${system_instruction ?? "NONE"}`,
 
         await reply.react("⌛")
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database).catch(console.error)
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, {model}).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
