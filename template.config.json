@@ -27,7 +27,15 @@
         "max_tokens": 256,
         "presence_penalty": 0,
         "frequency_penalty": 0,
-        "max_input_chars": 2000
+        "max_input_chars_per_model": {
+            "gpt-3.5-turbo": 4000,
+            "gpt-3.5-turbo-0301": 4000,
+            "gpt-4": 6000,
+            "gpt-4-32k": 6000,
+            "gpt-4-0314": 6000,
+            "gpt-4-32k-0314": 6000,
+            "others": 2000
+        }
     },
     "selectable_system_instructions": [
         {

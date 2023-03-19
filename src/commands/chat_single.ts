@@ -24,7 +24,7 @@ const command_data = new SlashCommandBuilder()
                     .setName("message")
                     .setDescription("The message to send to the AI")
                     .setRequired(true)
-                    .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
+                    .setMaxLength(Object.values(config?.generation_parameters?.max_input_chars_per_model ?? {}).sort((a, b) => b-a)[0] ?? 6000)
                 )
                 .addStringOption(
                     new SlashCommandStringOption()
@@ -63,7 +63,7 @@ const command_data = new SlashCommandBuilder()
                     .setName("message")
                     .setDescription("The message to send to the AI")
                     .setRequired(true)
-                    .setMaxLength(config?.generation_parameters?.max_input_chars ?? 10000)
+                    .setMaxLength(Object.values(config?.generation_parameters?.max_input_chars_per_model ?? {}).sort((a, b) => b-a)[0] ?? 6000)
                 )
                 .addStringOption(
                     new SlashCommandStringOption()
@@ -123,6 +123,8 @@ export default class extends Command {
         if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
         const model = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
         const messages = []
+
+        if(message.length > (ctx.client.config.generation_parameters?.max_input_chars_per_model?.[model] ?? 2000)) return ctx.error({error: "Please shorten your prompt"})
 
         if(system_instruction?.length) messages.push({role: "system", content: system_instruction})
 

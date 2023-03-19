@@ -133,7 +133,7 @@ export interface Config {
         max_tokens?: number,
         presence_penalty?: number,
         frequency_penalty?: number,
-        max_input_chars?: number
+        max_input_chars_per_model?: Record<string, number>
     },
     selectable_system_instructions?: {
         name?: string,

@@ -29,6 +29,8 @@ export default class extends Command {
         if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
         const model = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
         const messages = []
+        
+        if(message.length > (ctx.client.config.generation_parameters?.max_input_chars_per_model?.[model] ?? 2000)) return ctx.error({error: "Please shorten your prompt"})
 
         if(ctx.interaction.channel?.isThread()) {
             const data = await ctx.database.query<ChatData>("SELECT * FROM chats WHERE id=$1", [ctx.interaction.channelId]).catch(console.error)

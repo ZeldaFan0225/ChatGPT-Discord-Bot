@@ -23,7 +23,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "max_tokens": The max tokens for the request (-1 for infinite) (NUMBER) *1,
         "presence_penalty": The presence_penalty for the request (NUMBER) *1,
         "frequency_penalty": The frequency_penalty for the request (NUMBER) *1,
-        "max_input_chars":  The max characters for the request (NUMBER) *4
+        "max_input_chars_per_model": An Object with the model name as the key and the max characters as its value *4 *9
     },
     "selectable_system_instructions": An array of selectable system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
     "logs": {
@@ -63,3 +63,4 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*6` Configuration of `context_action_instruction` is advised.  
 `*7` Prices for models to save money spent by users. [Read more about pricing](https://openai.com/pricing)
 `*8` See API Documentation for compatibility. [Read more](https://platform.openai.com/docs/models/model-endpoint-compatibility)
+`*9` The value can not exceed 6000
