@@ -88,7 +88,7 @@ export default class extends Context {
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
         const res = await ctx.interaction.editReply(payload)
 
-        if(ctx.client.config.dev) {
+        if(ctx.client.config.dev_config?.enabled && ctx.client.config.dev_config.debug_discord_messages) {
             const devembed = new EmbedBuilder({
                 title: "Dev",
                 description: `**ID** \`${data.id}\`

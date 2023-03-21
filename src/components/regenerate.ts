@@ -66,7 +66,7 @@ export default class extends Component {
         await interaction_message.reactions.cache.get("⌛")?.remove()
         const res = await ctx.interaction.editReply(payload)
 
-        if(ctx.client.config.dev) {
+        if(ctx.client.config.dev_config?.enabled && ctx.client.config.dev_config.debug_discord_messages) {
             const devembed = new EmbedBuilder({
                 title: "Dev",
                 description: `**ID** \`${data.id}\`

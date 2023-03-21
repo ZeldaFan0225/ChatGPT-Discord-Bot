@@ -122,7 +122,11 @@ export interface Config {
     default_model?: string,
     selectable_models?: string[],
     staff_can_bypass_feature_restrictions?: boolean,
-    dev?: boolean,
+    dev_config?: {
+        enabled?: boolean,
+        debug_discord_messages?: boolean,
+        debug_logs?: boolean
+    },
     global_user_cooldown?: number,
     max_thread_folowup_length?: number
     generation_parameters?: {

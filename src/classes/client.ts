@@ -70,7 +70,7 @@ export class ChatGPTBotClient extends Client {
         .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
 
         const data: OpenAIModerationResponse = await openai_req.send().then(res => res.json())
-		if(this.config.dev) console.log(data)
+		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(data)
 		return !!data?.results[0]?.flagged
 	}
 
@@ -95,7 +95,7 @@ export class ChatGPTBotClient extends Client {
 		model?: string
 	}) {
 		const model = override_options?.model || this.config.default_model || "gpt-3.5-turbo"
-		if(this.config.dev) console.log(model)
+		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model)
 
 		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
         .body({
@@ -111,7 +111,7 @@ export class ChatGPTBotClient extends Client {
         .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
 
         const data: OpenAIChatCompletionResponse = await openai_req.send().then(res => res.json())
-		if(this.config.dev) console.log(data)
+		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(data)
 
 		if (this.config.logs?.enabled) {
             const logGeneration = (type: "txt" | "csv") => {

@@ -94,7 +94,7 @@ export default class extends Command {
             
             await ctx.database.query("UPDATE chats SET messages=$2 WHERE id=$1 RETURNING *", [ctx.interaction.channelId, messages]).catch(console.error)
 
-            if(ctx.client.config.dev) {
+            if(ctx.client.config.dev_config?.enabled && ctx.client.config.dev_config.debug_discord_messages) {
                 const devembed = new EmbedBuilder({
                     title: "Dev",
                     description: `**ID** \`${ai_data.id}\`
@@ -227,7 +227,7 @@ ${system_instruction ?? "NONE"}`,
 
         if(!db_save?.rowCount) thread.setLocked(true)
 
-        if(ctx.client.config.dev) {
+        if(ctx.client.config.dev_config?.enabled && ctx.client.config.dev_config.debug_discord_messages) {
             const devembed = new EmbedBuilder({
                 title: "Dev",
                 description: `**ID** \`${data.id}\`
