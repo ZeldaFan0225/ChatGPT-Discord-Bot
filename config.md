@@ -20,10 +20,10 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "default_system_instruction": The system instruction for the chatbot (STRING) *2,
         "temperature": The temperature for the request (NUMBER) *1,
         "top_p": The top_t for the request (NUMBER) *1,
-        "max_tokens": The max tokens for the request (-1 for infinite) (NUMBER) *1,
         "presence_penalty": The presence_penalty for the request (NUMBER) *1,
         "frequency_penalty": The frequency_penalty for the request (NUMBER) *1,
-        "max_input_chars_per_model": An Object with the model name as the key and the max characters as its value *4 *9
+        "max_completion_tokens_per_model": An Object with the model name as the key and the max completion tokens as its value *4 *9
+        "max_input_tokens_per_model": An Object with the model name as the key and the max input tokens as its value *4 *9
     },
     "selectable_system_instructions": An array of selectable system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
     "logs": {

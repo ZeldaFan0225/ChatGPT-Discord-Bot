@@ -5,6 +5,7 @@ import {existsSync, mkdirSync, writeFileSync, readFileSync, appendFileSync} from
 import { Pool } from "pg";
 import { Store } from "../stores/store";
 import { Config, OpenAIChatCompletionResponse, OpenAIModerationResponse, StoreTypes } from "../types";
+import GPT3Tokenizer from 'gpt3-tokenizer';
 
 export class ChatGPTBotClient extends Client {
 	commands: Store<StoreTypes.COMMANDS>;
@@ -15,6 +16,7 @@ export class ChatGPTBotClient extends Client {
 	cooldown: SuperMap<string, any>
 	cache: SuperMap<string, boolean>
 	blacklisted: SuperMap<string, boolean>
+	#tokenizer: GPT3Tokenizer
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -33,6 +35,7 @@ export class ChatGPTBotClient extends Client {
 			intervalTime: 1000
 		})
         this.loadConfig()
+		this.#tokenizer = new GPT3Tokenizer({type: "gpt3"})
 	}
 
     loadConfig() {
@@ -90,12 +93,23 @@ export class ChatGPTBotClient extends Client {
 		return !!res?.rowCount
 	}
 
+	tokenizeString(text: string) {
+		const encoded = this.#tokenizer.encode(text)
+		return {
+			count: encoded.bpe.length,
+			tokens: encoded.bpe,
+			text: encoded.text
+		}
+	}
+
 	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string, database: Pool, override_options?: {
 		temperature?: number,
 		model?: string
 	}) {
 		const model = override_options?.model || this.config.default_model || "gpt-3.5-turbo"
 		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model)
+
+		const total_count = messages.map(m => this.tokenizeString(m.content).count).reduce((a, b) => a + b)
 
 		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
         .body({
@@ -105,7 +119,7 @@ export class ChatGPTBotClient extends Client {
             top_p: this.config.generation_parameters?.top_p,
             frequency_penalty: this.config.generation_parameters?.frequency_penalty,
             presence_penalty: this.config.generation_parameters?.presence_penalty,
-            max_tokens: this.config.generation_parameters?.max_tokens === -1 ? undefined : this.config.generation_parameters?.max_tokens,
+            max_tokens: this.config.generation_parameters?.max_completion_tokens_per_model?.[model] === -1 ? undefined : ((this.config.generation_parameters?.max_completion_tokens_per_model?.[model] ?? 4096) - total_count),
             user: user_id
         }, "json")
         .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)

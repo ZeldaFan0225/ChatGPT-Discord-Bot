@@ -134,10 +134,10 @@ export interface Config {
         default_system_instruction?: string,
         temperature?: number,
         top_p?: number,
-        max_tokens?: number,
         presence_penalty?: number,
         frequency_penalty?: number,
-        max_input_chars_per_model?: Record<string, number>
+        max_completion_tokens_per_model?: Record<string, number>,
+        max_input_tokens_per_model?: Record<string, number>
     },
     selectable_system_instructions?: {
         name?: string,

@@ -28,17 +28,23 @@
         "default_system_instruction": "You are a useful helper called 'ChatGPT Discord by Zelda_Fan' and your knowledge cutoff is in 2021.",
         "temperature": 1,
         "top_p": 1,
-        "max_tokens": 256,
         "presence_penalty": 0,
         "frequency_penalty": 0,
-        "max_input_chars_per_model": {
-            "gpt-3.5-turbo": 4000,
-            "gpt-3.5-turbo-0301": 4000,
-            "gpt-4": 6000,
-            "gpt-4-32k": 6000,
-            "gpt-4-0314": 6000,
-            "gpt-4-32k-0314": 6000,
-            "others": 2000
+        "max_completion_tokens_per_model": {
+            "gpt-3.5-turbo": 4096,
+            "gpt-3.5-turbo-0301": 4096,
+            "gpt-4": 8192,
+            "gpt-4-32k": 8192,
+            "gpt-4-0314": 32768,
+            "gpt-4-32k-0314": 32768
+        },
+        "max_input_tokens_per_model": {
+            "gpt-3.5-turbo": 4096,
+            "gpt-3.5-turbo-0301": 4096,
+            "gpt-4": 8192,
+            "gpt-4-32k": 8192,
+            "gpt-4-0314": 32768,
+            "gpt-4-32k-0314": 32768
         }
     },
     "selectable_system_instructions": [

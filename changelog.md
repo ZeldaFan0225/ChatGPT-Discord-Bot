@@ -1,5 +1,10 @@
 # Changelog
 
+## V1.5.0
+
+- added tokenizing of input to accurately check token amount
+- precise per model input and completion token limit
+
 ## V1.4.1
 
 - add ability to select model to be used
