@@ -110,6 +110,7 @@ export class ChatGPTBotClient extends Client {
 		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model)
 
 		const total_count = messages.map(m => this.tokenizeString(m.content).count).reduce((a, b) => a + b)
+		//TODO: reported prompt tokens is different from calculated, investigate and fix calculations
 
 		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
         .body({
