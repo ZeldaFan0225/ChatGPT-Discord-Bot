@@ -22,7 +22,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "top_p": The top_t for the request (NUMBER) *1,
         "presence_penalty": The presence_penalty for the request (NUMBER) *1,
         "frequency_penalty": The frequency_penalty for the request (NUMBER) *1,
-        "max_completion_tokens_per_model": An Object with the model name as the key and the max completion tokens as its value *4 *9
+        "max_completion_tokens_per_model": An Object with the model name as the key and the max completion tokens as its value *4 *9 *10
         "max_input_tokens_per_model": An Object with the model name as the key and the max input tokens as its value *4 *9
     },
     "selectable_system_instructions": An array of selectable system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
@@ -64,3 +64,5 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*7` Prices for models to save money spent by users. [Read more about pricing](https://openai.com/pricing)
 `*8` See API Documentation for compatibility. [Read more](https://platform.openai.com/docs/models/model-endpoint-compatibility)
 `*9` The value can not exceed 6000
+`*10` It is recommended to set this value to `-1` to avoid errors.  
+I am currently unable to reproduce the calculation of prompt tokens count as reported by the API, which means as closer as you get to the models limits the liklier it gets the calculations are above the models limits causing the completion to fail.

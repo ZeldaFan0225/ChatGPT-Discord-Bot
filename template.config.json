@@ -31,12 +31,12 @@
         "presence_penalty": 0,
         "frequency_penalty": 0,
         "max_completion_tokens_per_model": {
-            "gpt-3.5-turbo": 4096,
-            "gpt-3.5-turbo-0301": 4096,
-            "gpt-4": 8192,
-            "gpt-4-32k": 8192,
-            "gpt-4-0314": 32768,
-            "gpt-4-32k-0314": 32768
+            "gpt-3.5-turbo": -1,
+            "gpt-3.5-turbo-0301": -1,
+            "gpt-4": -1,
+            "gpt-4-32k": -1,
+            "gpt-4-0314": -1,
+            "gpt-4-32k-0314": -1
         },
         "max_input_tokens_per_model": {
             "gpt-3.5-turbo": 4096,
