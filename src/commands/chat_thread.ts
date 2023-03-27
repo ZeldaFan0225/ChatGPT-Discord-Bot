@@ -23,12 +23,40 @@ export default class extends Command {
         if(!ctx.client.config.features?.chat_thread && !ctx.can_staff_bypass) return ctx.error({error: "This command is disabled"})
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
-        const message = ctx.interaction.options.getString("message", true)
+        let message = ctx.interaction.options.getString("message", true)
+        const modal = ctx.interaction.options.getBoolean("form_input") ?? false
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
         const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name.toLowerCase())?.system_instruction
         if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
         const model = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
         const messages = []
+        
+        let modalinteraction;
+        if(modal) {
+            await ctx.interaction.showModal({
+                title: "Prompt Input",
+                custom_id: "prompt_input",
+                components: [{
+                    type: 1,
+                    components: [{
+                        type: 4,
+                        label: "Prompt",
+                        custom_id: "prompt",
+                        required: true,
+                        placeholder: "Insert your prompt here",
+                        value: message,
+                        style: 2
+                    }]
+                }]
+            })
+            const res = await ctx.interaction.awaitModalSubmit({
+                time: 1000 * 60 * 5
+            }).catch(console.error)
+            if(!res) return;
+            modalinteraction = res
+            await res.deferReply()
+            message = res.fields.getTextInputValue("prompt")
+        } else await ctx.interaction.deferReply()
         
         const {count} = ctx.client.tokenizeString(message)
 
@@ -46,8 +74,6 @@ export default class extends Command {
             })
 
             if(ctx.client.config.max_thread_folowup_length && messages.filter(m => m.role === "user").length > ctx.client.config.max_thread_folowup_length) return ctx.error({error: "Max length of this conversation reached"})
-
-            await ctx.interaction.deferReply()
 
             if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
@@ -87,7 +113,7 @@ export default class extends Command {
                 }
             }
 
-            const reply = await ctx.interaction.editReply(payload)
+            const reply = await (modalinteraction ?? ctx.interaction).editReply(payload)
 
             messages.push({
                 role: "assistant",
@@ -123,7 +149,7 @@ ${system_instruction ?? "NONE"}`,
             content: message
         })
 
-        const reply = await ctx.interaction.reply({
+        const payload = {
             embeds: [
                 new EmbedBuilder({
                     author: {
@@ -133,9 +159,10 @@ ${system_instruction ?? "NONE"}`,
                     color: Colors.Blue,
                     description: message
                 })
-            ],
-            fetchReply: true
-        })
+            ]
+        }
+
+        const reply = await (modalinteraction ?? ctx.interaction).editReply({...payload})
 
         if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
@@ -183,7 +210,7 @@ ${system_instruction ?? "NONE"}`,
                 }
             }
             
-            await ctx.interaction.editReply(payload)
+            await (modalinteraction ?? ctx.interaction).editReply(payload)
             return;
         }
 
