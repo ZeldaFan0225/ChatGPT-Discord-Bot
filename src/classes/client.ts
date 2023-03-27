@@ -109,11 +109,7 @@ export class ChatGPTBotClient extends Client {
 		const model = override_options?.model || this.config.default_model || "gpt-3.5-turbo"
 		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model)
 
-		const total_count = messages.map(m => this.tokenizeString(m.content).count).reduce((a, b) => a + b)
-		//TODO: reported prompt tokens is different from calculated, investigate and fix calculations
-
-		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log("Calculated total prompt tokens: ", total_count)
-		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(this.config.generation_parameters?.max_completion_tokens_per_model?.[model] === -1 ? undefined : ((this.config.generation_parameters?.max_completion_tokens_per_model?.[model] ?? 4096)))
+		const total_count = messages.map(m => this.tokenizeString(m.content).count + 5).reduce((a, b) => a + b) + 2
 
 		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
         .body({
