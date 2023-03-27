@@ -23,6 +23,7 @@
     },
     "global_user_cooldown": 60000,
     "max_thread_folowup_length": 5,
+    "allow_collaboration": false,
     "generation_parameters": {
         "moderate_prompts": true,
         "default_system_instruction": "You are a useful helper called 'ChatGPT Discord by Zelda_Fan' and your knowledge cutoff is in 2021.",

@@ -65,7 +65,7 @@ export default class extends Command {
         if(ctx.interaction.channel?.isThread()) {
             const data = await ctx.database.query<ChatData>("SELECT * FROM chats WHERE id=$1", [ctx.interaction.channelId]).catch(console.error)
             if(!data?.rowCount) return ctx.error({error: "Unable to find conversation.\nUse this command in a non-thread channel to start a new conversation."})
-            if(data.rows[0]!.user_id !== ctx.interaction.user.id) return ctx.error({error: "Only the initial user can use this command in this thread."})
+            if(!ctx.client.config.allow_collaboration && data.rows[0]!.user_id !== ctx.interaction.user.id) return ctx.error({error: "Only the initial user can use this command in this thread."})
 
             messages.push(...data.rows[0]!.messages)
             messages.push({
@@ -76,9 +76,16 @@ export default class extends Command {
             if(ctx.client.config.max_thread_folowup_length && messages.filter(m => m.role === "user").length > ctx.client.config.max_thread_folowup_length) return ctx.error({error: "Max length of this conversation reached"})
 
             if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
+            if(ctx.client.cache.has(ctx.interaction.channelId)) return ctx.error({error: "Somebody else is currently generating an answer for this thread. Please wait until they are finished"})
+
+            ctx.client.cache.set(ctx.interaction.channelId, true, 1000 * 60 * 15)
 
             const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, {model}).catch(console.error)
-            if(!ai_data) return ctx.error({error: "Something went wrong"})
+            if(!ai_data) {
+                ctx.error({error: "Something went wrong"})
+                ctx.client.cache.delete(ctx.interaction.channelId)
+                return;
+            }
 
             if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
 
@@ -121,6 +128,7 @@ export default class extends Command {
             })
             
             await ctx.database.query("UPDATE chats SET messages=$2 WHERE id=$1 RETURNING *", [ctx.interaction.channelId, messages]).catch(console.error)
+            ctx.client.cache.delete(ctx.interaction.channelId)
 
             if(ctx.client.config.dev_config?.enabled && ctx.client.config.dev_config.debug_discord_messages) {
                 const devembed = new EmbedBuilder({

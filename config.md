@@ -15,6 +15,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     "dev": Whether this is a development instance or not (BOOLEAN) *3,
     "global_user_cooldown": The time until a user can send a new request in milliseconds (NUMBER),
     "max_thread_folowup_length": The amount of followup prompts a user can send in a thread (NUMBER),
+    "allow_collaboration": When set to true anybody can use /chat thread in each others threads (BOOLEAN),
     "generation_parameters": {
         "moderate_prompts": Whether to use openais moderation endpoint before sending the generation request (BOOLEAN),
         "default_system_instruction": The system instruction for the chatbot (STRING) *2,

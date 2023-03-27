@@ -129,6 +129,7 @@ export interface Config {
     },
     global_user_cooldown?: number,
     max_thread_folowup_length?: number
+    allow_collaboration?: boolean
     generation_parameters?: {
         moderate_prompts?: boolean,
         default_system_instruction?: string,
