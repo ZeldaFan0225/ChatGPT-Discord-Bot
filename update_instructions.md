@@ -1,5 +1,9 @@
 # Update Instructions
 
+# 1.5.0 => 1.5.1
+
+No special actions are required to perform this update.
+
 # 1.4.1 => 1.5.0
 
 Some keys in the config file have been changed.  

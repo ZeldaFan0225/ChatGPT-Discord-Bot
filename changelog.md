@@ -1,5 +1,12 @@
 # Changelog
 
+## V1.5.1
+
+- fixed token counting
+- added ability for collaboration in threads (disabled by default)
+- added ability to input prompts via a form/modal
+- added a button to create a thread on a /chat single response
+
 ## V1.5.0
 
 - added tokenizing of input to accurately check token amount
