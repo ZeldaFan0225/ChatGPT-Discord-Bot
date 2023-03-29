@@ -113,6 +113,12 @@ const delete_button = new ButtonBuilder({
     style: 4
 })
 
+const thread_button = new ButtonBuilder({
+    label: "Start Thread",
+    custom_id: "create_thread",
+    style: 2
+})
+
 
 export default class extends Command {
     constructor() {
@@ -183,7 +189,7 @@ export default class extends Command {
         const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}`
         let payload: InteractionEditReplyOptions = {}
 
-        if((ctx.client.config.features?.delete_button || ctx.client.config.features?.regenerate_button) || ctx.can_staff_bypass) {
+        if((ctx.client.config.features?.delete_button || ctx.client.config.features?.regenerate_button || ctx.client.config.features?.chat_thread) || ctx.can_staff_bypass) {
             const components: {type: 1, components: ButtonBuilder[]}[] = [{
                 type: 1,
                 components: []
@@ -191,6 +197,7 @@ export default class extends Command {
 
             if(ctx.client.config.features?.regenerate_button || ctx.can_staff_bypass) components[0]!.components.push(regenerate_button)
             if(ctx.client.config.features?.delete_button || ctx.can_staff_bypass) components[0]!.components.push(delete_button)
+            if(ctx.client.config.features?.chat_thread || ctx.can_staff_bypass) components[0]!.components.push(thread_button)
 
             payload.components = components
         }
