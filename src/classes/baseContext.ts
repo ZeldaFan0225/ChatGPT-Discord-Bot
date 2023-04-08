@@ -16,9 +16,8 @@ export class BaseContext{
     }
 
     get is_staff() {
-        if(!this.interaction.member) return false;
-        if(this.client.config.staff_users?.includes(this.interaction.user.id)) return true;
-        return Array.isArray(this.interaction.member.roles) ? this.interaction.member.roles.some(r => this.client.config.staff_roles?.includes(r)) : this.interaction.member.roles.cache.some(r => this.client.config.staff_roles?.includes(r.id))
+        if(!this.interaction.inCachedGuild()) return false;
+        return this.client.is_staff(this.interaction.member)
     }
 
     get has_blacklisted_role() {

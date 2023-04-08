@@ -1,6 +1,6 @@
 import SuperMap from "@thunder04/supermap";
 import Centra from "centra";
-import { Client, ClientOptions } from "discord.js";
+import { Client, ClientOptions, GuildMember } from "discord.js";
 import {existsSync, mkdirSync, writeFileSync, readFileSync, appendFileSync} from "fs"
 import { Pool } from "pg";
 import { Store } from "../stores/store";
@@ -101,6 +101,12 @@ export class ChatGPTBotClient extends Client {
 			text: encoded.text
 		}
 	}
+
+    is_staff(member: GuildMember) {
+        if(!member) return false;
+        if(this.config.staff_users?.includes(member.id)) return true;
+        return member.roles.cache.some(r => this.config.staff_roles?.includes(r.id))
+    }
 
 	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string, database: Pool, override_options?: {
 		temperature?: number,

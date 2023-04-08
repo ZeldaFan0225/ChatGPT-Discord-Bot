@@ -24,6 +24,16 @@
     "global_user_cooldown": 60000,
     "max_thread_folowup_length": 5,
     "allow_collaboration": false,
+    "hey_gpt": {
+        "enabled": true,
+        "moderate_prompts": true,
+        "model": "gpt-3.5-turbo",
+        "processing_emoji": "⏳",
+        "system_instruction": "You are the smart assistant and cannot break character, you will help users in a Discord chat in an easy and funny way and help as a smart assistant.",
+        "activation_phrases": [
+            "hey gpt"
+        ]
+    },
     "generation_parameters": {
         "moderate_prompts": true,
         "default_system_instruction": "You are a useful helper called 'ChatGPT Discord by Zelda_Fan' and your knowledge cutoff is in 2021.",

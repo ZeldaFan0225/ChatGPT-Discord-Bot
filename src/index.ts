@@ -7,6 +7,7 @@ import { handleModals } from "./handlers/modalHandler";
 import { handleAutocomplete } from "./handlers/autocompleteHandler";
 import { handleContexts } from "./handlers/contextHandler";
 import {Pool} from "pg"
+import { handleMessage } from "./handlers/message";
 
 const RE_INI_KEY_VAL = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/
 for (const line of readFileSync(`${process.cwd()}/.env`, 'utf8').split(/[\r\n]/)) {
@@ -25,7 +26,7 @@ const connection = new Pool({
 })
 
 const client = new ChatGPTBotClient({
-    intents: ["Guilds"]
+    intents: ["Guilds", "MessageContent", "GuildMessages", "DirectMessages"]
 })
 
 
@@ -90,3 +91,5 @@ client.on("interactionCreate", async (interaction) => {
 client.on("threadDelete", async (thread) => {
     await connection.query("DELETE FROM chats WHERE id=$1", [thread.id])
 })
+
+if(client.config.hey_gpt?.enabled) client.on("messageCreate", async (message) => handleMessage(message, client, connection))

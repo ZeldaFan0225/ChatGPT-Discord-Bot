@@ -130,6 +130,14 @@ export interface Config {
     global_user_cooldown?: number,
     max_thread_folowup_length?: number
     allow_collaboration?: boolean
+    hey_gpt?: {
+        enabled?: boolean,
+        moderate_prompts?: boolean,
+        model?: string,
+        processing_emoji?: string,
+        system_instruction?: string,
+        activation_phrases?: string[]
+    }
     generation_parameters?: {
         moderate_prompts?: boolean,
         default_system_instruction?: string,
