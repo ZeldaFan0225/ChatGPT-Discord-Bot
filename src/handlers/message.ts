@@ -19,11 +19,11 @@ export async function handleMessage(message: Message, client: ChatGPTBotClient, 
     const messages = [
         {
             role: "system",
-            content: client.config.hey_gpt.system_instruction || "Hey Siri what's the time?"
+            content: client.config.hey_gpt.system_instruction || "Hey GPT what's the time?"
         },
         {
             role: "user",
-            content: `The current date and time is ${new Date().toUTCString()}. Your knowledge cutoff is 2021.`
+            content: `The current date and time is ${new Date().getUTCDate()}. Your knowledge cutoff is 2021.`
         },
         {
             role: "user",
