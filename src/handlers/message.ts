@@ -8,6 +8,7 @@ export async function handleMessage(message: Message, client: ChatGPTBotClient, 
     if(!client.config.hey_gpt?.enabled && !can_staff_bypass(message.member, client)) return;
     if(!await client.checkConsent(message.author.id, database)) return error(message, `You need to agree to our ${await client.getSlashCommandTag("terms")} before using this action`);
     if(!client.is_staff(message.member) && client.config.global_user_cooldown && client.cooldown.has(message.member.id)) return error(message, "You are currently on cooldown")
+    if(!client.is_staff(message.member) && (message.member.roles.cache.some(r => client.config.blacklist_roles?.includes(r.id)) || await client.checkBlacklist(message.member.id, database))) return;
 
     if(client.config.hey_gpt.moderate_prompts) {
         const flagged = await client.checkIfPromptGetsFlagged(message.content)
