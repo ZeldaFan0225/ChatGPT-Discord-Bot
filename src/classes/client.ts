@@ -137,7 +137,7 @@ export class ChatGPTBotClient extends Client {
             const logGeneration = (type: "txt" | "csv") => {
                 this.initLogDir();
                 const log_dir = this.config.logs?.directory ?? "/logs";
-                const content = type === "csv" ? `\n${new Date().toISOString()},${user_id},${data.id},"${messages.at(-1)?.content}"` : `\n${new Date().toISOString()} | ${user_id}${" ".repeat(20 - user_id.length)} | ${data.id}${" ".repeat(40 - (data.id?.length ?? 0))} | ${messages.at(-1)?.content}`;
+                const content = type === "csv" ? `\n${new Date().toISOString()},${user_id},${data.id},"${messages.map(m => m.content).join(" <=====> ")}"` : `\n${new Date().toISOString()} | ${user_id}${" ".repeat(20 - user_id.length)} | ${data.id}${" ".repeat(40 - (data.id?.length ?? 0))} | ${messages.map(m => m.content).join(" <=====> ")}`;
                 appendFileSync(`${process.cwd()}${log_dir}/logs_${new Date().getMonth() + 1}-${new Date().getFullYear()}.${type}`, content);
             }
 
