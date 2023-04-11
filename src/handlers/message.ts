@@ -24,7 +24,7 @@ export async function handleMessage(message: Message, client: ChatGPTBotClient, 
         },
         {
             role: "user",
-            content: `The current date and time is ${new Date().getUTCDate()}. My Discord Username is ${message.member.displayName}. Your knowledge cutoff is 2021.`
+            content: `The current date and time is ${new Date().getUTCDate()}. My Discord Username is "${message.member.displayName}". Your knowledge cutoff is 2021.`
         },
         {
             role: "user",
@@ -35,7 +35,7 @@ export async function handleMessage(message: Message, client: ChatGPTBotClient, 
     const data = await client.requestChatCompletion(messages, message.author.id, database, {
         model: client.config.hey_gpt.model
     }).catch(console.error)
-    console.log(data)
+    
     if(!data) return message.reactions.cache.get(client.config.hey_gpt.processing_emoji || "⏳")?.users.remove(client.user!).catch(console.error)
 
     await message.reactions.cache.get(client.config.hey_gpt.processing_emoji || "⏳")?.users.remove(client.user!).catch(console.error)

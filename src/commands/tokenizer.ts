@@ -27,8 +27,6 @@ export default class extends Command {
         const text = ctx.interaction.options.getString("text", true)
         const data = ctx.client.tokenizeString(text)
 
-        console.log(data)
-
         const embed = new EmbedBuilder({
             title: "Tokenized string",
             description: `\`\`\`ansi\n${data.text.map((t, i) => data.count <= 82 ? `\u001b[0;${40 + (i%3)}m${t}` : `${t}|`).join("")}\`\`\`\n**Total Count** ${data.count}${text.length <= 2000 ? `\n\`\`\`\n${data.tokens.join(", ")}\`\`\`` : ""}`,
