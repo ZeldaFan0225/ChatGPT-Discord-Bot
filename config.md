@@ -16,6 +16,14 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     "global_user_cooldown": The time until a user can send a new request in milliseconds (NUMBER),
     "max_thread_folowup_length": The amount of followup prompts a user can send in a thread (NUMBER),
     "allow_collaboration": When set to true anybody can use /chat thread in each others threads (BOOLEAN),
+    "hey_gpt": {
+        "enabled": Whether this is enabled or not (BOOLEAN),
+        "moderate_prompts": Whether to ignore commands which violate OpenAIs usage policies (BOOLEAN),
+        "model": The model to use for this action (STRING),
+        "processing_emoji": The emoji to use for showing the bot is working (unicode or emoji ID),
+        "system_instruction": The system instruction for this action (STRING),
+        "activation_phrases": Phrases which the message has to start with to be activated (ARRAY OF STRINGS)
+    },
     "generation_parameters": {
         "moderate_prompts": Whether to use openais moderation endpoint before sending the generation request (BOOLEAN),
         "default_system_instruction": The system instruction for the chatbot (STRING) *2,
