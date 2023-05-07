@@ -44,6 +44,8 @@ export async function handleMessage(message: Message, client: ChatGPTBotClient, 
         content: data.choices[0]?.message.content,
         allowedMentions: {parse: []}
     })
+    
+    if(client.config.global_user_cooldown) client.cooldown.set(message.author.id, Date.now(), client.config.global_user_cooldown)
 }
 
 function can_staff_bypass(member: GuildMember, client: ChatGPTBotClient) {
