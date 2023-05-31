@@ -47,14 +47,11 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "regenerate_button": Whether this feature is enabled or not (BOOLEAN),
         "delete_button": Whether this feature is enabled or not (BOOLEAN),
         "view_system_instruction": Whether this feature is enabled or not (BOOLEAN) *4,
-        "englishify": Whether this feature is enabled or not (BOOLEAN),
-        "context_action": Whether this feature is enabled or not (BOOLEAN) *6,
         "user_stats": Whether to record user stats or not,
         "user_leaderboard": Whether this feature is enabled or not (BOOLEAN) *4
     },
     "leaderboard_amount_users": How many users to display on the leaderboard (NUMBER),
-    "englishify_system_instruction": The system instruction to translate a message (STRING) *5,
-    "context_action_instruction": The system instruction for the context action (STRING),
+    "message_context_actions": An Array of message contexts with system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
     "costs": {
         "MODEL NAME": {
             "prompt": The cost for prompt tokens,

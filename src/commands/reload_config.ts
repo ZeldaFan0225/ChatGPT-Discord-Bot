@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { ApplicationCommandType, ContextMenuCommandBuilder, SlashCommandBuilder } from "discord.js";
 import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
 
@@ -19,9 +19,18 @@ export default class extends Command {
 
     override async run(ctx: CommandContext): Promise<any> {
         ctx.client.loadConfig()
+        
+        const configurable_msg_cmds = ctx.client.config.message_context_actions?.map((a, i) => 
+            new ContextMenuCommandBuilder()
+                .setType(ApplicationCommandType.Message)
+                .setName(a.name ?? `Unknown Action ${i}`)
+                .setDMPermission(false)
+                .toJSON()
+        ) || []
+        await ctx.client.application?.commands.set([...ctx.client.commands.createPostBody(), ...ctx.client.contexts.createPostBody(), ...configurable_msg_cmds]).catch(console.error)
 
         await ctx.interaction.reply({
-            content: "Reloaded!",
+            content: "Config and Commands reloaded!",
             ephemeral: true
         })
     }

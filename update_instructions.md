@@ -1,5 +1,9 @@
 # Update Instructions
 
+# 1.5.1 => 1.6.0
+
+- Change the key `context_action_instruction` from your `config.json` file to the new property `message_context_actions`, make sure to follow the scheme described in [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md)
+
 # 1.5.0 => 1.5.1
 
 No special actions are required to perform this update.

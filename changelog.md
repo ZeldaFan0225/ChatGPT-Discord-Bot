@@ -1,5 +1,11 @@
 # Changelog
 
+## V1.6.0
+
+- removed `englishify` and `context_action` from `features` which can be turned off
+- added configurable context actions
+- moved Englishify to configurable context actions
+
 ## V1.5.1
 
 - fixed token counting

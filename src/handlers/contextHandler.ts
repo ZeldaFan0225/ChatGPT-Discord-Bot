@@ -4,7 +4,8 @@ import { ChatGPTBotClient } from "../classes/client";
 import { ContextContext } from "../classes/contextContext";
 
 export async function handleContexts(interaction: UserContextMenuCommandInteraction | MessageContextMenuCommandInteraction, client: ChatGPTBotClient, database: Pool) {
-    const command = await client.contexts.getContext(interaction).catch(() => null)
+    let command = await client.contexts.getContext(interaction).catch(() => null)
+    if(!command && client.config.message_context_actions?.find(a => a.name === interaction.commandName)) command = client.contexts.loaded_classes.find(c => c.name === "configurable_context_action");
     if(!command) return;
 
     let context

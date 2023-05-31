@@ -1,11 +1,6 @@
-import { APIButtonComponent, ApplicationCommandType, AttachmentBuilder, ButtonBuilder, Colors, ContextMenuCommandBuilder, EmbedBuilder, InteractionEditReplyOptions } from "discord.js";
+import { APIButtonComponent, ApplicationCommandType, AttachmentBuilder, ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions } from "discord.js";
 import { Context } from "../classes/context";
 import { ContextContext } from "../classes/contextContext";
-
-const command_data = new ContextMenuCommandBuilder()
-    .setType(ApplicationCommandType.Message)
-    .setName("Context Action")
-    .setDMPermission(false)
 
 
 const delete_button = new ButtonBuilder({
@@ -17,19 +12,20 @@ const delete_button = new ButtonBuilder({
 export default class extends Context {
     constructor() {
         super({
-            name: "Context Action",
-            command_data: command_data.toJSON(),
+            name: "configurable_context_action",
             staff_only: false,
         })
     }
 
     override async run(ctx: ContextContext<ApplicationCommandType.Message>): Promise<any> {
-        if(!ctx.client.config.features?.context_action && !ctx.can_staff_bypass) return ctx.error({error: "This command is disabled"})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         if(!ctx.interaction.targetMessage.content?.length) return ctx.error({error: "This message does not have any content"})
         const messages = []
 
-        if(ctx.client.config?.context_action_instruction) messages.push({role: "system", content: ctx.client.config?.context_action_instruction})
+        const action = ctx.client.config.message_context_actions?.find(a => a.name === ctx.interaction.commandName)
+        if(!action) return ctx.error({error: "Unable to find action"})
+
+        if(action.system_instruction) messages.push({role: "system", content: action.system_instruction})
 
         messages.push({
             role: "user",

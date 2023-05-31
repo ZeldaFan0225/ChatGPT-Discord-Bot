@@ -76,14 +76,16 @@
         "regenerate_button": true,
         "delete_button": true,
         "view_system_instruction": true,
-        "englishify": true,
-        "context_action": false,
         "user_stats": true,
         "user_leaderboard": true
     },
     "leaderboard_amount_users": 10,
-    "englishify_system_instruction": "You are a translation tool. You translate into good english.",
-    "context_action_instruction": "<Insert your context actions system instruction here>",
+    "message_context_actions": [
+        {
+            "name": "Translate to English",
+            "system_instruction": "You are a translation tool. You translate into good english."
+        }
+    ],
     "costs": {
         "gpt-3.5-turbo": {
             "prompt": 0.002,
