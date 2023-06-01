@@ -1,6 +1,6 @@
 {
   "name": "chatgpt_discord_bot",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "",
   "main": "dist/index.js",
   "scripts": {

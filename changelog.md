@@ -1,5 +1,9 @@
 # Changelog
 
+## V1.6.1
+
+- add an option to not automatically create the commands on startup
+
 ## V1.6.0
 
 - removed `englishify` and `context_action` from `features` which can be turned off

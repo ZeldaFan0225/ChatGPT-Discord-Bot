@@ -169,6 +169,7 @@ export interface Config {
     },
     leaderboard_amount_users?: number,
     englishify_system_instruction?: string,
+    auto_create_commands?: boolean,
     message_context_actions?: {
         name?: string,
         system_instruction?: string

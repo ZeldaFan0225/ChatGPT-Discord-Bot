@@ -51,6 +51,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "user_leaderboard": Whether this feature is enabled or not (BOOLEAN) *4
     },
     "leaderboard_amount_users": How many users to display on the leaderboard (NUMBER),
+    "auto_create_commands": When set to true the commands will be automatically created (BOOLEAN) *11,
     "message_context_actions": An Array of message contexts with system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
     "costs": {
         "MODEL NAME": {
@@ -71,4 +72,5 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*8` See API Documentation for compatibility. [Read more](https://platform.openai.com/docs/models/model-endpoint-compatibility)
 `*9` The value can not exceed 6000
 `*10` It is recommended to set this value to `-1` to avoid errors.  
+`*11` When set to false changes in the config file will not be applied to commands on startup, only when using /reload_config  
 I am currently unable to reproduce the calculation of prompt tokens count as reported by the API, which means as closer as you get to the models limits the liklier it gets the calculations are above the models limits causing the completion to fail.

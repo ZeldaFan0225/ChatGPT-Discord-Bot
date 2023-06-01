@@ -80,6 +80,7 @@
         "user_leaderboard": true
     },
     "leaderboard_amount_users": 10,
+    "auto_create_commands": true,
     "message_context_actions": [
         {
             "name": "Translate to English",

@@ -53,15 +53,17 @@ client.on("ready", async () => {
     //client.modals.loadClasses().catch(console.error)
     client.user?.setPresence({activities: [{type: ActivityType.Listening, name: "to ChatGPT screaming at your requests"}], status: PresenceUpdateStatus.DoNotDisturb })
     console.log(`Ready`)
-    const configurable_msg_cmds = client.config.message_context_actions?.map((a, i) => 
-        new ContextMenuCommandBuilder()
-            .setType(ApplicationCommandType.Message)
-            .setName(a.name ?? `Unknown Action ${i}`)
-            .setDMPermission(false)
-            .toJSON()
 
-    ) || []
-    await client.application?.commands.set([...client.commands.createPostBody(), ...client.contexts.createPostBody(), ...configurable_msg_cmds]).catch(console.error)
+    if(client.config.auto_create_commands) {
+        const configurable_msg_cmds = client.config.message_context_actions?.map((a, i) => 
+            new ContextMenuCommandBuilder()
+                .setType(ApplicationCommandType.Message)
+                .setName(a.name ?? `Unknown Action ${i}`)
+                .setDMPermission(false)
+                .toJSON()
+        ) || []
+        await client.application?.commands.set([...client.commands.createPostBody(), ...client.contexts.createPostBody(), ...configurable_msg_cmds]).catch(console.error)
+    }
 
     if(client.config.selectable_system_instructions?.length && client.config.selectable_system_instructions.some(i => !i.name || !i.system_instruction)) throw new Error("Every selectable system instruction needs a name and a system_instruction")
     if(client.config.selectable_system_instructions?.length && client.config.selectable_system_instructions.some(i => i.name === "default")) throw new Error("You can't name your system instruction 'default'")
