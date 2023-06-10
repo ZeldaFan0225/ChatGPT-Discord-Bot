@@ -72,5 +72,4 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*8` See API Documentation for compatibility. [Read more](https://platform.openai.com/docs/models/model-endpoint-compatibility)
 `*9` The value can not exceed 6000
 `*10` It is recommended to set this value to `-1` to avoid errors.  
-`*11` When set to false changes in the config file will not be applied to commands on startup, only when using /reload_config  
-I am currently unable to reproduce the calculation of prompt tokens count as reported by the API, which means as closer as you get to the models limits the liklier it gets the calculations are above the models limits causing the completion to fail.
+`*11` When set to false changes in the config file will not be applied to commands on startup, only when using /reload_config THE DEFAULT IS TRUE  

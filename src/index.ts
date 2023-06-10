@@ -54,7 +54,7 @@ client.on("ready", async () => {
     client.user?.setPresence({activities: [{type: ActivityType.Listening, name: "to ChatGPT screaming at your requests"}], status: PresenceUpdateStatus.DoNotDisturb })
     console.log(`Ready`)
 
-    if(client.config.auto_create_commands) {
+    if(client.config.auto_create_commands !== false) {
         const configurable_msg_cmds = client.config.message_context_actions?.map((a, i) => 
             new ContextMenuCommandBuilder()
                 .setType(ApplicationCommandType.Message)
