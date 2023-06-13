@@ -44,18 +44,28 @@
         "max_completion_tokens_per_model": {
             "gpt-3.5-turbo": -1,
             "gpt-3.5-turbo-0301": -1,
+            "gpt-3.5-turbo-0613": -1,
+            "gpt-3.5-turbo-16k": -1,
+            "gpt-3.5-turbo-16k-0613": -1,
             "gpt-4": -1,
             "gpt-4-32k": -1,
             "gpt-4-0314": -1,
-            "gpt-4-32k-0314": -1
+            "gpt-4-32k-0314": -1,
+            "gpt-4-0613": -1,
+            "gpt-4-32k-0613": -1
         },
         "max_input_tokens_per_model": {
             "gpt-3.5-turbo": 4096,
             "gpt-3.5-turbo-0301": 4096,
+            "gpt-3.5-turbo-0613": 4096,
+            "gpt-3.5-turbo-16k": 16384,
+            "gpt-3.5-turbo-16k-0613": 16384,
             "gpt-4": 8192,
             "gpt-4-32k": 8192,
             "gpt-4-0314": 32768,
-            "gpt-4-32k-0314": 32768
+            "gpt-4-0613": 32768,
+            "gpt-4-32k-0314": 32768,
+            "gpt-4-32k-0613": 32768
         }
     },
     "selectable_system_instructions": [
@@ -89,12 +99,24 @@
     ],
     "costs": {
         "gpt-3.5-turbo": {
-            "prompt": 0.002,
+            "prompt": 0.0015,
             "completion": 0.002
         },
         "gpt-3.5-turbo-0301": {
-            "prompt": 0.002,
+            "prompt": 0.0015,
             "completion": 0.002
+        },
+        "gpt-3.5-turbo-0613": {
+            "prompt": 0.0015,
+            "completion": 0.002
+        },
+        "gpt-3.5-turbo-16k": {
+            "prompt": 0.003,
+            "completion": 0.004
+        },
+        "gpt-3.5-turbo-16k-0613": {
+            "prompt": 0.003,
+            "completion": 0.004
         },
         "gpt-4": {
             "prompt": 0.03,
@@ -109,6 +131,14 @@
             "completion": 0.06
         },
         "gpt-4-32k-0314": {
+            "prompt": 0.06,
+            "completion": 0.12
+        },
+        "gpt-4-0613": {
+            "prompt": 0.03,
+            "completion": 0.06
+        },
+        "gpt-4-32k-0613": {
             "prompt": 0.06,
             "completion": 0.12
         }
