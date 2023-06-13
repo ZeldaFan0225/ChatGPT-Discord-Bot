@@ -44,7 +44,7 @@ export default class extends Component {
         })
 
         const thread = await ctx.interaction.message.startThread({
-            name: `ChatGPT Chat ${ctx.interaction.user.tag}`,
+            name: `ChatGPT Chat ${ctx.interaction.user.username}`,
         }).catch(console.error)
         if(!thread) return;
         await thread.members.add(ctx.interaction.user)

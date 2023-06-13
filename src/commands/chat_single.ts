@@ -207,7 +207,7 @@ export default class extends Command {
         if(description.length < 4000) {
             const embed = new EmbedBuilder({
                 author: {
-                    name: ctx.interaction.user.tag,
+                    name: ctx.interaction.user.username,
                     icon_url: ctx.interaction.user.displayAvatarURL()
                 },
                 description,
@@ -217,7 +217,7 @@ export default class extends Command {
 
             payload.embeds = [embed]
         } else {
-            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.tag}:\n${message}\n\nChatGPT (${system_instruction_name}):\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API`), {name: `${data.id}.txt`})
+            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.username}:\n${message}\n\nChatGPT (${system_instruction_name}):\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API`), {name: `${data.id}.txt`})
             payload.content = "Result attached below"
             payload.files = [attachment]
         }

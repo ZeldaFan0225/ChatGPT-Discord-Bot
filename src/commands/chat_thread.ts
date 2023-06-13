@@ -92,7 +92,7 @@ export default class extends Command {
             const embeds: [EmbedBuilder, EmbedBuilder] = [
                 new EmbedBuilder({
                     author: {
-                        name: ctx.interaction.user.tag,
+                        name: ctx.interaction.user.username,
                         icon_url: ctx.interaction.user.displayAvatarURL()
                     },
                     color: Colors.Blue,
@@ -113,7 +113,7 @@ export default class extends Command {
             if((embedLength(embeds[0].toJSON()) + embedLength(embeds[1].toJSON())) <= 6000) {
                 payload = {embeds}
             } else {
-                const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.tag}:\n${message}\n\nChatGPT:\n${ai_data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API`), {name: `${ai_data.id}.txt`})
+                const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.username}:\n${message}\n\nChatGPT:\n${ai_data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API`), {name: `${ai_data.id}.txt`})
                 payload = {
                     content: "Result attached below",
                     files: [attachment]
@@ -161,7 +161,7 @@ ${system_instruction ?? "NONE"}`,
             embeds: [
                 new EmbedBuilder({
                     author: {
-                        name: ctx.interaction.user.tag,
+                        name: ctx.interaction.user.username,
                         icon_url: ctx.interaction.user.displayAvatarURL()
                     },
                     color: Colors.Blue,
@@ -182,7 +182,7 @@ ${system_instruction ?? "NONE"}`,
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
 
         const thread = await reply.startThread({
-            name: `ChatGPT Chat ${ctx.interaction.user.tag}`,
+            name: `ChatGPT Chat ${ctx.interaction.user.username}`,
         }).catch(console.error)
 
         await reply.reactions.cache.get("⌛")?.remove()
@@ -201,7 +201,7 @@ ${system_instruction ?? "NONE"}`,
             if(description.length < 4000) {
                 const embed = new EmbedBuilder({
                     author: {
-                        name: ctx.interaction.user.tag,
+                        name: ctx.interaction.user.username,
                         icon_url: ctx.interaction.user.displayAvatarURL()
                     },
                     description,
@@ -211,7 +211,7 @@ ${system_instruction ?? "NONE"}`,
     
                 payload = {embeds: [embed]}
             } else {
-                const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.tag}:\n${message}\n\nChatGPT:\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API`), {name: `${data.id}.txt`})
+                const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.username}:\n${message}\n\nChatGPT:\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API`), {name: `${data.id}.txt`})
                 payload = {
                     content: "Unable to start thread.\nResult attached below",
                     files: [attachment]

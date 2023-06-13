@@ -38,7 +38,7 @@ export default class extends Command {
         if(!res?.rowCount) return ctx.error({error: "Unable to set blacklist"})
         ctx.client.blacklisted.set(user.id, state, 1000 * 60)
         return await ctx.interaction.reply({
-            content: `${state ? "Added" : "Removed"} blacklist for ${user.tag} (\`${user.id}\`)`,
+            content: `${state ? "Added" : "Removed"} blacklist for ${user.username} (\`${user.id}\`)`,
             ephemeral: true
         })
     }
