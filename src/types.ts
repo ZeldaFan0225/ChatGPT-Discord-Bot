@@ -120,7 +120,7 @@ export interface Config {
     staff_users?: string[],
     blacklist_roles?: string[],
     default_model?: string,
-    selectable_models?: string[],
+    selectable_models?: (string | {name: string, base_url: string})[],
     staff_can_bypass_feature_restrictions?: boolean,
     dev_config?: {
         enabled?: boolean,

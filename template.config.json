@@ -13,7 +13,11 @@
     ],
     "default_model": "gpt-3.5-turbo",
     "selectable_models": [
-        "gpt-3.5-turbo"
+        "gpt-3.5-turbo",
+        {
+            "name": "gpt-3.5-turbo-16k",
+            "base_url": "https://api.openai.com"
+        }
     ],
     "staff_can_bypass_feature_restrictions": true,
     "dev_config": {

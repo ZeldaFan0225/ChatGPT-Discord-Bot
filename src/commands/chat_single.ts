@@ -40,7 +40,9 @@ const command_data = new SlashCommandBuilder()
                         .setDescription("The model to use for this request")
                         .setRequired(false)
                         .addChoices(
-                            ...config.selectable_models.map(m => ({value: m, name: m}))
+                            ...config.selectable_models.map(m => {
+                                return typeof m === "string" ? {value: m, name: m} : {value: m.name, name: m.name}
+                            })
                         )
                     )
                 }
@@ -84,7 +86,9 @@ const command_data = new SlashCommandBuilder()
                         .setDescription("The model to use for this request")
                         .setRequired(false)
                         .addChoices(
-                            ...config.selectable_models.map(m => ({value: m, name: m}))
+                            ...config.selectable_models.map(m => {
+                                return typeof m === "string" ? {value: m, name: m} : {value: m.name, name: m.name}
+                            })
                         )
                     )
                 }
@@ -138,7 +142,9 @@ export default class extends Command {
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
         const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name.toLowerCase())?.system_instruction
         if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
-        const model = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
+        const model_name = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
+        const model = ctx.client.config.selectable_models?.find(m => typeof m === "string" ? m === model_name : m.name === model_name)
+
         const messages = []
 
         let modalinteraction;
@@ -170,7 +176,7 @@ export default class extends Command {
 
         const {count} = ctx.client.tokenizeString(message)
 
-        if(count > (ctx.client.config.generation_parameters?.max_input_tokens_per_model?.[model] ?? 4096)) return ctx.error({error: "Please shorten your prompt"})
+        if(count > (ctx.client.config.generation_parameters?.max_input_tokens_per_model?.[model_name] ?? 4096)) return ctx.error({error: "Please shorten your prompt"})
 
         if(system_instruction?.length) messages.push({role: "system", content: system_instruction})
 
@@ -181,9 +187,15 @@ export default class extends Command {
 
         if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, {
-            model
-        }).catch(console.error)
+        const override: {model?: string, base_url?: string} = {}
+        if(typeof model === "string") {
+            override.model = model
+        } else {
+            override.model = model?.name
+            override.base_url = model?.base_url
+        }
+
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, override).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
         const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}`

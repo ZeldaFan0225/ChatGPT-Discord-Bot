@@ -110,14 +110,15 @@ export class ChatGPTBotClient extends Client {
 
 	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string, database: Pool, override_options?: {
 		temperature?: number,
-		model?: string
+		model?: string,
+		base_url?: string
 	}) {
 		const model = override_options?.model || this.config.default_model || "gpt-3.5-turbo"
 		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model)
 
 		const total_count = messages.map(m => this.tokenizeString(m.content).count + 5).reduce((a, b) => a + b) + 2
 
-		const openai_req = Centra(`https://api.openai.com/v1/chat/completions`, "POST")
+		const openai_req = Centra(`${override_options?.base_url ?? "https://api.openai.com"}/v1/chat/completions`, "POST")
         .body({
             model,
             messages,
@@ -137,7 +138,7 @@ export class ChatGPTBotClient extends Client {
             const logGeneration = (type: "txt" | "csv") => {
                 this.initLogDir();
                 const log_dir = this.config.logs?.directory ?? "/logs";
-                const content = type === "csv" ? `\n${new Date().toISOString()},${user_id},${data.id},"${messages.map(m => m.content).join(" <=====> ")}"` : `\n${new Date().toISOString()} | ${user_id}${" ".repeat(20 - user_id.length)} | ${data.id}${" ".repeat(40 - (data.id?.length ?? 0))} | ${messages.map(m => m.content).join(" <=====> ")}`;
+                const content = type === "csv" ? `\n${new Date().toISOString()},${user_id},${data.id},"${messages.map(m => m.content).join(" <=====> ")}"` : `\n${new Date().toISOString()} | ${user_id}${" ".repeat(20 - user_id.length)} | ${data.id}${" ".repeat(40 - (data.id?.slice(0, 40).length ?? 0))} | ${messages.map(m => m.content).join(" <=====> ")}`;
                 appendFileSync(`${process.cwd()}${log_dir}/logs_${new Date().getMonth() + 1}-${new Date().getFullYear()}.${type}`, content);
             }
 

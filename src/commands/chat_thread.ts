@@ -28,7 +28,8 @@ export default class extends Command {
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
         const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name.toLowerCase())?.system_instruction
         if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
-        const model = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
+        const model_name = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
+        const model = ctx.client.config.selectable_models?.find(m => typeof m === "string" ? m === model_name : m.name === model_name)
         const messages = []
         
         let modalinteraction;
@@ -60,7 +61,7 @@ export default class extends Command {
         
         const {count} = ctx.client.tokenizeString(message)
 
-        if(count > (ctx.client.config.generation_parameters?.max_input_tokens_per_model?.[model] ?? 4096)) return ctx.error({error: "Please shorten your prompt"})
+        if(count > (ctx.client.config.generation_parameters?.max_input_tokens_per_model?.[model_name] ?? 4096)) return ctx.error({error: "Please shorten your prompt"})
 
         if(ctx.interaction.channel?.isThread()) {
             const data = await ctx.database.query<ChatData>("SELECT * FROM chats WHERE id=$1", [ctx.interaction.channelId]).catch(console.error)
@@ -79,8 +80,16 @@ export default class extends Command {
             if(ctx.client.cache.has(ctx.interaction.channelId)) return ctx.error({error: "Somebody else is currently generating an answer for this thread. Please wait until they are finished"})
 
             ctx.client.cache.set(ctx.interaction.channelId, true, 1000 * 60 * 15)
+            
+            const override: {model?: string, base_url?: string} = {}
+            if(typeof model === "string") {
+                override.model = model
+            } else {
+                override.model = model?.name
+                override.model = model?.base_url
+            }
 
-            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, {model}).catch(console.error)
+            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, override).catch(console.error)
             if(!ai_data) {
                 ctx.error({error: "Something went wrong"})
                 ctx.client.cache.delete(ctx.interaction.channelId)
@@ -175,8 +184,16 @@ ${system_instruction ?? "NONE"}`,
         if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
         await reply.react("⌛")
+        
+        const override: {model?: string, base_url?: string} = {}
+        if(typeof model === "string") {
+            override.model = model
+        } else {
+            override.model = model?.name
+            override.model = model?.base_url
+        }
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, {model}).catch(console.error)
+        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, override).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
