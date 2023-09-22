@@ -55,7 +55,7 @@ export default class extends Component {
             messages
         ]).catch(console.error)
         
-        if(!db_save?.rowCount) thread.setLocked(true)
+        if(!db_save?.rowCount) await thread.setLocked(true)
 
         await thread.send({
             embeds: [

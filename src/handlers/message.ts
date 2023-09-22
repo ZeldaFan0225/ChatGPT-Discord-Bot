@@ -3,8 +3,10 @@ import { Pool } from "pg";
 import { ChatGPTBotClient } from "../classes/client";
 
 export async function handleMessage(message: Message, client: ChatGPTBotClient, database: Pool): Promise<any> {
-    if(!message.member) return;
-    if(!client.config.hey_gpt?.activation_phrases?.some(p => message.content.toLowerCase().startsWith(p.toLowerCase()))) return;
+    if(!message.member || !client.config.hey_gpt?.activation_phrases) return;
+    const phrases = (client.config.hey_gpt?.activation_phrases || []) as (string | {phrase: string;system_instruction: string;})[]
+    const activation_phrase = phrases.find(p => message.content.toLowerCase().startsWith((typeof p === "string" ? p : p.phrase).toLowerCase()))
+    if(!activation_phrase) return;
     if(!client.config.hey_gpt?.enabled && !can_staff_bypass(message.member, client)) return;
     if(!await client.checkConsent(message.author.id, database)) return error(message, `You need to agree to our ${await client.getSlashCommandTag("terms")} before using this action`);
     if(!client.is_staff(message.member) && client.config.global_user_cooldown && client.cooldown.has(message.member.id)) return error(message, "You are currently on cooldown")
@@ -17,14 +19,16 @@ export async function handleMessage(message: Message, client: ChatGPTBotClient, 
     
     await message.react(client.config.hey_gpt.processing_emoji || "⏳")
 
+    const system_instruction = typeof activation_phrase === "string" ? client.config.hey_gpt.system_instruction : activation_phrase.system_instruction
+
     const messages = [
         {
             role: "system",
-            content: client.config.hey_gpt.system_instruction || "Hey GPT what's the time?"
+            content: system_instruction || "Hey GPT what's the time?"
         },
         {
             role: "user",
-            content: `The current date and time is ${new Date().toUTCString()}. My Discord Username is "${message.member.displayName}". Your knowledge cutoff is 2021.`
+            content: `The current date and time is ${new Date().toUTCString()}. My Discord Username is "${message.member.displayName}". Your knowledge cutoff is January 2022.`
         },
         {
             role: "user",

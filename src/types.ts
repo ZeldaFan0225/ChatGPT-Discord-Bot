@@ -136,7 +136,7 @@ export interface Config {
         model?: string,
         processing_emoji?: string,
         system_instruction?: string,
-        activation_phrases?: string[]
+        activation_phrases?: string[] | {phrase: string, system_instruction: string}[],
     }
     generation_parameters?: {
         moderate_prompts?: boolean,

@@ -35,7 +35,11 @@
         "processing_emoji": "⏳",
         "system_instruction": "You are a smart assistant and cannot break character, you will help users in a Discord chat in an easy and funny way and help as a smart assistant.",
         "activation_phrases": [
-            "hey gpt"
+            "hey gpt",
+            {
+                "phrase": "hey assistant",
+                "system_instruction": "You are a smart and funny assistant"
+            }
         ]
     },
     "generation_parameters": {
