@@ -44,10 +44,16 @@ export async function handleMessage(message: Message, client: ChatGPTBotClient, 
 
     await message.reactions.cache.get(client.config.hey_gpt.processing_emoji || "⏳")?.users.remove(client.user!).catch(console.error)
 
-    await message.reply({
-        content: data.choices[0]?.message.content,
-        allowedMentions: {parse: []}
-    })
+    if(!data.choices[0]?.message.content) return;
+
+    const messageContent = data.choices[0].message.content
+
+    for(let i = 0; i < Math.ceil(messageContent.length / 1900); ++i) {
+        await message.reply({
+            content: messageContent.slice((i * 1900), ((i + 1) * 1900)) + (messageContent.length > 1900 ? `\n\n**Response** \`${i+1}\` / \`${Math.ceil(messageContent.length / 1900)}\`` : ""),
+            allowedMentions: {parse: []}
+        })
+    }
     
     if(client.config.global_user_cooldown) client.cooldown.set(message.author.id, Date.now(), client.config.global_user_cooldown)
 }
