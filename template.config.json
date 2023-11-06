@@ -60,7 +60,9 @@
             "gpt-4-0314": -1,
             "gpt-4-32k-0314": -1,
             "gpt-4-0613": -1,
-            "gpt-4-32k-0613": -1
+            "gpt-4-32k-0613": -1,
+            "gpt-4-1106-preview": -1,
+            "gpt-4-vision-preview": -1
         },
         "max_input_tokens_per_model": {
             "gpt-3.5-turbo": 4096,
@@ -73,7 +75,9 @@
             "gpt-4-0314": 32768,
             "gpt-4-0613": 32768,
             "gpt-4-32k-0314": 32768,
-            "gpt-4-32k-0613": 32768
+            "gpt-4-32k-0613": 32768,
+            "gpt-4-1106-preview": 128000,
+            "gpt-4-vision-preview": 128000,
         }
     },
     "selectable_system_instructions": [
@@ -149,6 +153,14 @@
         "gpt-4-32k-0613": {
             "prompt": 0.06,
             "completion": 0.12
+        },
+        "gpt-4-1106-preview": {
+            "prompt": 0.01,
+            "completion": 0.03
+        },
+        "gpt-4-vision-preview": {
+            "prompt": 0.01,
+            "completion": 0.03
         }
     }
 }
