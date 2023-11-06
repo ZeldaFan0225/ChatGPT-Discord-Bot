@@ -140,7 +140,7 @@ export interface Config {
         activation_phrases?: string[] | {phrase: string, system_instruction: string}[],
     },
     generate_image?: {
-        quality: "standard" | "hd",
+        quality?: "standard" | "hd",
         default_size?: string
     }
     generation_parameters?: {
