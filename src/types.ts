@@ -120,7 +120,8 @@ export interface Config {
     staff_users?: string[],
     blacklist_roles?: string[],
     default_model?: string,
-    selectable_models?: (string | {name: string, base_url: string})[],
+    default_dalle_model?: string,
+    selectable_models?: (string | {name: string, base_url?: string, supports_images?: boolean})[],
     staff_can_bypass_feature_restrictions?: boolean,
     dev_config?: {
         enabled?: boolean,
@@ -137,6 +138,10 @@ export interface Config {
         processing_emoji?: string,
         system_instruction?: string,
         activation_phrases?: string[] | {phrase: string, system_instruction: string}[],
+    },
+    generate_image?: {
+        quality: "standard" | "hd",
+        default_size?: string
     }
     generation_parameters?: {
         moderate_prompts?: boolean,
@@ -161,6 +166,8 @@ export interface Config {
     features?: {
         chat_single?: boolean,
         chat_thread?: boolean,
+        image_in_prompt?: boolean,
+        create_image?: boolean,
         regenerate_button?: boolean,
         delete_button?: boolean,
         view_system_instruction?: boolean,
@@ -178,4 +185,26 @@ export interface Config {
         prompt?: number,
         completion?: number
     }>
+}
+
+export interface DallE3GenerationOptions {
+    model: string,
+    prompt: string,
+    size?: "1024x1024" | "1024x1792" | "1792x1024",
+    quality?: "standard" | "hd",
+    style?: "vivid" | "natural"
+}
+
+export interface DallE3APIOptions extends DallE3GenerationOptions {
+    response_format?: "url" | "b64_json",
+    user?: string,
+    n?: number
+}
+
+export interface DallE3ResponseData {
+    created: number,
+    data: {
+        url: string,
+        revised_prompt?: string
+    }[]
 }

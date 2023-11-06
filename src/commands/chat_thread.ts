@@ -30,7 +30,11 @@ export default class extends Command {
         if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
         const model_name = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
         const model = ctx.client.config.selectable_models?.find(m => typeof m === "string" ? m === model_name : m.name === model_name)
+        const image = ctx.interaction.options.getAttachment("image")
         const messages = []
+        
+        if(!ctx.client.config.features?.image_in_prompt) return ctx.error({error: "Images in prompts are disabled"})
+        if(typeof model === "string" || !model?.supports_images) return ctx.error({error: "This model doesn't support images"})
         
         let modalinteraction;
         if(modal) {
@@ -163,7 +167,16 @@ ${system_instruction ?? "NONE"}`,
 
         messages.push({
             role: "user",
-            content: message
+            content: !image ? message : [
+                {
+                    type: "text" as const,
+                    text: message
+                },
+                {
+                    type: "image_url" as const,
+                    image_url: image.url
+                }
+            ]
         })
 
         const payload = {

@@ -1,5 +1,10 @@
 # Changelog
 
+## V1.7.0
+
+- add /create_image to create an image using DallE-3
+- add image option to /chat single and /chat thread to use with gpt-4-vision
+
 ## V1.6.1
 
 - add an option to not automatically create the commands on startup

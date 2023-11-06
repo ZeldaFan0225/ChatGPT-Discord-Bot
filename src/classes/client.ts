@@ -4,7 +4,7 @@ import { Client, ClientOptions, GuildMember } from "discord.js";
 import {existsSync, mkdirSync, writeFileSync, readFileSync, appendFileSync} from "fs"
 import { Pool } from "pg";
 import { Store } from "../stores/store";
-import { Config, OpenAIChatCompletionResponse, OpenAIModerationResponse, StoreTypes } from "../types";
+import { Config, DallE3APIOptions, DallE3GenerationOptions, DallE3ResponseData, OpenAIChatCompletionResponse, OpenAIModerationResponse, StoreTypes } from "../types";
 import GPT3Tokenizer from 'gpt3-tokenizer';
 
 export class ChatGPTBotClient extends Client {
@@ -108,7 +108,7 @@ export class ChatGPTBotClient extends Client {
         return member.roles.cache.some(r => this.config.staff_roles?.includes(r.id))
     }
 
-	async requestChatCompletion(messages: {role: string, content: string}[], user_id: string, database: Pool, override_options?: {
+	async requestChatCompletion(messages: {role: string, content: string | {type: "text" | "image_url", text?: string, image_url?: string}[]}[], user_id: string, database: Pool, override_options?: {
 		temperature?: number,
 		model?: string,
 		base_url?: string
@@ -116,8 +116,9 @@ export class ChatGPTBotClient extends Client {
 		const model = override_options?.model || this.config.default_model || "gpt-3.5-turbo"
 		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model)
 
-		const total_count = messages.map(m => this.tokenizeString(m.content).count + 5).reduce((a, b) => a + b) + 2
+		const total_count = messages.map(m => this.tokenizeString(typeof m.content === "string" ? m.content : m.content.find(c => c.type === "text")?.text!).count + 5).reduce((a, b) => a + b) + 2
 
+	
 		const openai_req = Centra(`${override_options?.base_url ?? "https://api.openai.com"}/v1/chat/completions`, "POST")
         .body({
             model,
@@ -149,6 +150,42 @@ export class ChatGPTBotClient extends Client {
 		if(!data?.id) throw new Error("Unable to generate response")
 		
         await this.recordSpentTokens(user_id, {prompt: data.usage.prompt_tokens, completion: data.usage.completion_tokens}, model, database)
+
+		return data
+	}
+
+	async requestImageGeneration(generation_options: DallE3GenerationOptions, user?: string) {
+		const model = generation_options.model || this.config.default_dalle_model || "dall-e-3"
+		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model)
+
+		const options: DallE3APIOptions = {
+			...generation_options,
+			n: 1,
+			response_format: "url",
+			user
+		}
+
+		const openai_req = Centra(`https://api.openai.com/v1/images/generations`, "POST")
+        .body(options, "json")
+        .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
+
+		
+        const data: DallE3ResponseData = await openai_req.send().then(res => res.json())
+		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(data)
+
+		if (this.config.logs?.enabled) {
+            const logGeneration = (type: "txt" | "csv") => {
+                this.initLogDir();
+                const log_dir = this.config.logs?.directory ?? "/logs";
+                const content = type === "csv" ? `\n${new Date().toISOString()},${user},${"unknown id"},"${options.prompt}"` : `\n${new Date().toISOString()} | ${user}${" ".repeat(20 - (user?.length || 9))} | ${"unknown id"}${" ".repeat(40 - ("unknown id".slice(0, 40).length ?? 0))} | ${options.prompt}`;
+                appendFileSync(`${process.cwd()}${log_dir}/logs_${new Date().getMonth() + 1}-${new Date().getFullYear()}.${type}`, content);
+            }
+
+            if (this.config.logs.plain) logGeneration("txt");
+            if (this.config.logs.csv) logGeneration("csv");
+        }
+
+		if(!data.created) throw new Error("Unable to generate response")
 
 		return data
 	}

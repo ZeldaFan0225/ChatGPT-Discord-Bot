@@ -10,7 +10,8 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     "staff_users": The staff users who don't have any of the staff roles. This will bypass filters and cooldowns (ARRAY OF USER IDS),
     "blacklist_roles": Blacklist users based on their roles. Staff have full bypass (ARRAY OF ROLE IDS),
     "default_model": The default model to use. Model must support chat completion (STRING) *8,
-    "selectable_models": A list of models the users can select from (ARRAY OF ChAT COMPLETION MODEL NAMES) *1 *4
+    "default_dalle_model": The default dalle model to use in /create_image *1 *2,
+    "selectable_models": A list of models the users can select from (ARRAY OF ChAT COMPLETION MODEL NAMES) *1 *4 *12
     "staff_can_bypass_feature_restrictions": When set to true staff won't be restricted by features turned off (BOOLEAN) *4,
     "dev": Whether this is a development instance or not (BOOLEAN) *3,
     "global_user_cooldown": The time until a user can send a new request in milliseconds (NUMBER),
@@ -23,6 +24,10 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "processing_emoji": The emoji to use for showing the bot is working (unicode or emoji ID),
         "system_instruction": The system instruction for this action (STRING),
         "activation_phrases": Phrases which the message has to start with to be activated (ARRAY OF STRINGS)
+    },
+    "generate_image": {
+        "quality": "hd" or "standard" *1,
+        "default_size": "1024x1024" or "1024x1792" or "1792x1024" *1,
     },
     "generation_parameters": {
         "moderate_prompts": Whether to use openais moderation endpoint before sending the generation request (BOOLEAN),
@@ -44,6 +49,8 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     "features": {
         "chat_single": Whether this feature is enabled or not (BOOLEAN) *4,
         "chat_thread": Whether this feature is enabled or not (BOOLEAN) *4,
+        "image_in_prompt": Whether this feature is enabled or not (BOOLEAN) *4,
+        "create_image": Whether this feature is enabled or not (BOOLEAN) *4,
         "regenerate_button": Whether this feature is enabled or not (BOOLEAN),
         "delete_button": Whether this feature is enabled or not (BOOLEAN),
         "view_system_instruction": Whether this feature is enabled or not (BOOLEAN) *4,
@@ -73,3 +80,4 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*9` The value can not exceed 6000
 `*10` It is recommended to set this value to `-1` to avoid errors.  
 `*11` When set to false changes in the config file will not be applied to commands on startup, only when using /reload_config THE DEFAULT IS TRUE  
+`*12` For better configuration instead of the name the following can be given: `{name: string, base_url?: string, supports_images?: boolean}`

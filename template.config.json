@@ -12,11 +12,17 @@
 
     ],
     "default_model": "gpt-3.5-turbo",
+    "default_dalle_model": "dall-e-3",
     "selectable_models": [
         "gpt-3.5-turbo",
         {
             "name": "gpt-3.5-turbo-16k",
-            "base_url": "https://api.openai.com"
+            "base_url": "https://api.openai.com",
+            "supports_images": false
+        },
+        {
+            "name": "gpt-4-vision-preview",
+            "supports_images": true
         }
     ],
     "staff_can_bypass_feature_restrictions": true,
@@ -41,6 +47,10 @@
                 "system_instruction": "You are a smart and funny assistant"
             }
         ]
+    },
+    "generate_image": {
+        "quality": "hd",
+        "default_size": "1024x1024"
     },
     "generation_parameters": {
         "moderate_prompts": true,
@@ -95,6 +105,8 @@
     "features": {
         "chat_single": true,
         "chat_thread": true,
+        "image_in_prompt": true,
+        "create_image": true,
         "regenerate_button": true,
         "delete_button": true,
         "view_system_instruction": true,
