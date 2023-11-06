@@ -33,8 +33,8 @@ export default class extends Command {
         const image = ctx.interaction.options.getAttachment("image")
         const messages = []
         
-        if(!ctx.client.config.features?.image_in_prompt) return ctx.error({error: "Images in prompts are disabled"})
-        if(typeof model === "string" || !model?.supports_images) return ctx.error({error: "This model doesn't support images"})
+        if(image && !ctx.client.config.features?.image_in_prompt) return ctx.error({error: "Images in prompts are disabled"})
+        if(image && (typeof model === "string" || !model?.supports_images)) return ctx.error({error: "This model doesn't support images"})
         
         let modalinteraction;
         if(modal) {
