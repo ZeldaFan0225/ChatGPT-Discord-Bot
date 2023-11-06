@@ -28,7 +28,7 @@ export async function handleMessage(message: Message, client: ChatGPTBotClient, 
         },
         {
             role: "user",
-            content: `The current date and time is ${new Date().toUTCString()}. My Discord Username is "${message.member.displayName}". Your knowledge cutoff is January 2022.`
+            content: `The current date and time is ${new Date().toUTCString()}. My Discord Username is "${message.member.displayName}".`
         },
         {
             role: "user",
