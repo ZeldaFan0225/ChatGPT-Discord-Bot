@@ -137,7 +137,7 @@ export interface Config {
         model?: string,
         processing_emoji?: string,
         system_instruction?: string,
-        activation_phrases?: string[] | {phrase: string, system_instruction: string}[],
+        activation_phrases?: string[] | {phrase: string, system_instruction: string, model?: string, allow_images?: boolean}[],
     },
     generate_image?: {
         quality?: "standard" | "hd",

@@ -35,9 +35,10 @@ async function error(message: Message, content: string) {
 
 async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool) {
     if(!message.member || !client.config.hey_gpt?.activation_phrases) return;
-    const phrases = (client.config.hey_gpt?.activation_phrases || []) as (string | {phrase: string;system_instruction: string;})[]
+    const phrases = (client.config.hey_gpt?.activation_phrases || []) as (string | {phrase: string;system_instruction: string; model?: string; allow_images?: boolean})[]
     const activation_phrase = phrases.find(p => message.content.toLowerCase().startsWith((typeof p === "string" ? p : p.phrase).toLowerCase()))
     if(!activation_phrase) return;
+    const activation_data = typeof activation_phrase === "string" ? undefined : activation_phrase
     if(!client.config.hey_gpt?.enabled && !can_staff_bypass(message.member, client)) return;
     if(!await client.checkConsent(message.author.id, database)) return error(message, `You need to agree to our ${await client.getSlashCommandTag("terms")} before using this action`);
     if(!client.is_staff(message.member) && client.config.global_user_cooldown && client.cooldown.has(message.member.id)) return error(message, "You are currently on cooldown")
@@ -50,9 +51,10 @@ async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool
     
     await message.react(client.config.hey_gpt.processing_emoji || "⏳")
 
-    const system_instruction = typeof activation_phrase === "string" ? client.config.hey_gpt.system_instruction : activation_phrase.system_instruction
+    const system_instruction = activation_data?.system_instruction || client.config.hey_gpt.system_instruction
 
-    const messages = [
+
+    const messages: {role: string, content: any}[] = [
         {
             role: "system",
             content: system_instruction || "Hey GPT what's the time?"
@@ -61,14 +63,33 @@ async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool
             role: "user",
             content: `The current date and time is ${new Date().toUTCString()}. My Discord Username is "${message.member.displayName}".`
         },
-        {
-            role: "user",
-            content: message.content
-        }
+        
     ]
 
+    if(activation_data?.allow_images) {
+        const images = message.attachments.filter(a => a.contentType?.includes("image"))
+        messages.push({
+            role: "user",
+            content: [
+                {
+                    type: "text" as const,
+                    text: message.content
+                },
+                ...images.map(i => ({
+                    type: "image_url" as const,
+                    image_url: i.url
+                }))
+            ]
+        })
+    } else {
+        messages.push({
+            role: "user",
+            content: message.content
+        })
+    }
+
     const data = await client.requestChatCompletion(messages, message.author.id, database, {
-        model: client.config.hey_gpt.model
+        model: activation_data?.model || client.config.hey_gpt.model
     }).catch(console.error)
     
     if(!data) return message.reactions.cache.get(client.config.hey_gpt.processing_emoji || "⏳")?.users.remove(client.user!).catch(console.error)

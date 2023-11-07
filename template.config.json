@@ -44,7 +44,9 @@
             "hey gpt",
             {
                 "phrase": "hey assistant",
-                "system_instruction": "You are a smart and funny assistant"
+                "system_instruction": "You are a smart and funny assistant",
+                "model": "gpt-4",
+                "allow_images": false
             }
         ]
     },
