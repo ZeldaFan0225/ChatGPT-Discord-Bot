@@ -23,7 +23,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "model": The model to use for this action (STRING),
         "processing_emoji": The emoji to use for showing the bot is working (unicode or emoji ID),
         "system_instruction": The system instruction for this action (STRING),
-        "activation_phrases": Phrases which the message has to start with to be activated (ARRAY OF STRINGS)
+        "activation_phrases": Phrases which the message has to start with to be activated (ARRAY OF STRINGS) *13
     },
     "generate_image": {
         "quality": "hd" or "standard" *1,
@@ -86,4 +86,5 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*9` The value can not exceed 6000
 `*10` It is recommended to set this value to `-1` to avoid errors.  
 `*11` When set to false changes in the config file will not be applied to commands on startup, only when using /reload_config THE DEFAULT IS TRUE  
-`*12` For better configuration instead of the name the following can be given: `{name: string, base_url?: string, supports_images?: boolean}`
+`*12` For better configuration instead of the name the following can be given: `{name: string, base_url?: string, supports_images?: boolean}`  
+`*12` For better configuration instead of the activation phrase the following can be given: `{phrase: string, system_instruction: string, model?: string, allow_images?: boolean}`

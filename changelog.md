@@ -6,6 +6,7 @@
  - create a thread 
  - apply the assistant to it
  - export the thread
+- give hey gpt the ability to accept and process images
 
 ## V1.7.0
 
