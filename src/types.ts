@@ -145,7 +145,8 @@ export interface Config {
     }
     assistants?: {
         result_fetching_max_count?: number,
-        allow_collaboration?: boolean
+        allow_collaboration?: boolean,
+        assistant_ids?: string[]
     }
     generation_parameters?: {
         moderate_prompts?: boolean,

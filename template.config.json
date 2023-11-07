@@ -54,7 +54,10 @@
     },
     "assistants": {
         "result_fetching_max_count": 20,
-        "allow_collaboration": false
+        "allow_collaboration": false,
+        "assistant_ids": [
+            "asst_abcd1234"
+        ]
     },
     "generation_parameters": {
         "moderate_prompts": true,

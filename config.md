@@ -31,7 +31,8 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     },
     "assistants": {
         "result_fetching_max_count": The number of times to fetch the response results from OpenAI before displaying an error (INTEGER),
-        "allow_collaboration": When enabled all users who have access to the thread can interact with the assistant
+        "allow_collaboration": When enabled all users who have access to the thread can interact with the assistant (BOOLEAN),
+        "assistant_ids": Array of assistant IDs that can be used in the bot *1 (ARRAY OF STRINGS)
     },
     "generation_parameters": {
         "moderate_prompts": Whether to use openais moderation endpoint before sending the generation request (BOOLEAN),

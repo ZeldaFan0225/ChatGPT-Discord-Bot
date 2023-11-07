@@ -95,8 +95,6 @@ export default class extends Command {
 
         if(!result) return ctx.error({error: "Unable to generate response"})
 
-        if(ctx.client.config.dev_config?.enabled && ctx.client.config.dev_config.debug_logs) console.log(result)
-
         const messages = await ctx.client.getThreadMessages(thread.id).catch(console.error)
         if(!messages || "error" in messages) return ctx.error({error: "Unable to fetch messages"})
 

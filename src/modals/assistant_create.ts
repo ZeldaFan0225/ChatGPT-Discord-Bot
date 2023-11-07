@@ -50,7 +50,7 @@ export default class extends Modal {
         ctx.client.assistants.set(assistant.id, assistant)
 
         return await ctx.interaction.editReply({
-            content: `Successfully created assistant with ID ${assistant.id}`
+            content: `Successfully created assistant with ID \`${assistant.id}\`\nNow save the assistant ID in the config to make it available for use.`
         })
     }
 }

@@ -56,10 +56,12 @@ export class ChatGPTBotClient extends Client {
 
 		const assistants: {data: AssistantData[]} = await req.json()
 
-		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(`${assistants?.data.length || "No"} Assistants loaded`)
+		const list = assistants.data.filter(a => this.config.assistants?.assistant_ids?.includes(a.id))
 
-		if(assistants.data) {
-			for(let assistant of assistants.data) {
+		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(`${list.length || "No"} Assistants loaded`)
+
+		if(list) {
+			for(let assistant of list) {
 				this.assistants.set(assistant.id, assistant)
 			}
 		}

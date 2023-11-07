@@ -25,7 +25,7 @@ export default class extends Command {
         const messages = await ctx.client.getThreadMessages(thread.id).catch(console.error)
         if(!messages || "error" in messages) return ctx.error({error: "Unable to get messages"})
 
-        const messages_prepared = messages.data.reverse().map(m => `${m.role === "user" ? `User (${m.metadata["DISCORD_USER"] || "unknown"})` : "Assistant"}\n------------------\n${m.content.map(m => "text" in m ? m.text.value : "").join("\n\n") || "Something went wrong"}`)
+        const messages_prepared = messages.data.reverse().map(m => `${m.role === "user" ? `User (${m.metadata["DISCORD_USER"] || "unknown"})` : `Assistant (${m.assistant_id})`}\n------------------\n${m.content.map(m => "text" in m ? m.text.value : "").join("\n\n") || "Something went wrong"}`)
 
         const attachment = new AttachmentBuilder(Buffer.from(messages_prepared.join("\n\n\n")), {name: "messages.txt"})
 
