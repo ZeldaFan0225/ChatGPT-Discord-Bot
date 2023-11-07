@@ -29,6 +29,10 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "quality": "hd" or "standard" *1,
         "default_size": "1024x1024" or "1024x1792" or "1792x1024" *1,
     },
+    "assistants": {
+        "result_fetching_max_count": The number of times to fetch the response results from OpenAI before displaying an error (INTEGER),
+        "allow_collaboration": When enabled all users who have access to the thread can interact with the assistant
+    },
     "generation_parameters": {
         "moderate_prompts": Whether to use openais moderation endpoint before sending the generation request (BOOLEAN),
         "default_system_instruction": The system instruction for the chatbot (STRING) *2,
@@ -49,6 +53,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     "features": {
         "chat_single": Whether this feature is enabled or not (BOOLEAN) *4,
         "chat_thread": Whether this feature is enabled or not (BOOLEAN) *4,
+        "assistants": Whether this feature is enabled or not (BOOLEAN) *4,
         "image_in_prompt": Whether this feature is enabled or not (BOOLEAN) *4,
         "create_image": Whether this feature is enabled or not (BOOLEAN) *4,
         "regenerate_button": Whether this feature is enabled or not (BOOLEAN),

@@ -3,6 +3,37 @@ import { Pool } from "pg";
 import { ChatGPTBotClient } from "../classes/client";
 
 export async function handleMessage(message: Message, client: ChatGPTBotClient, database: Pool): Promise<any> {
+    if(message.channel.isThread() && !message.author.bot) {
+        const thread = await database.query("SELECT * FROM assistant_threads WHERE channel_id=$1", [message.channelId]).catch(console.error)
+        if(thread?.rows.length) {
+            if(message.content.startsWith("//")) return;
+            if(thread.rows[0].owner_id !== message.author.id && !client.config.assistants?.allow_collaboration) return message.react("🛑");
+            const result = await client.addMessageToThread(thread.rows[0].id, {
+                content: message.content,
+                role: "user",
+                metadata: {
+                    "DISCORD_USER": message.author.id,
+                }
+            })
+
+            if(!result || "error" in result) message.react("❌")
+            message.react("✅")
+            return;
+        }
+    }
+
+    await heyGPT(message, client, database)
+}
+
+function can_staff_bypass(member: GuildMember, client: ChatGPTBotClient) {
+    return client.config.staff_can_bypass_feature_restrictions && client.is_staff(member)
+}
+
+async function error(message: Message, content: string) {
+    return await message.reply({content}).then((m) => setTimeout(() => m.delete(), 1000 * 30));
+}
+
+async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool) {
     if(!message.member || !client.config.hey_gpt?.activation_phrases) return;
     const phrases = (client.config.hey_gpt?.activation_phrases || []) as (string | {phrase: string;system_instruction: string;})[]
     const activation_phrase = phrases.find(p => message.content.toLowerCase().startsWith((typeof p === "string" ? p : p.phrase).toLowerCase()))
@@ -56,12 +87,4 @@ export async function handleMessage(message: Message, client: ChatGPTBotClient, 
     }
     
     if(client.config.global_user_cooldown) client.cooldown.set(message.author.id, Date.now(), client.config.global_user_cooldown)
-}
-
-function can_staff_bypass(member: GuildMember, client: ChatGPTBotClient) {
-    return client.config.staff_can_bypass_feature_restrictions && client.is_staff(member)
-}
-
-async function error(message: Message, content: string) {
-    return await message.reply({content}).then((m) => setTimeout(() => m.delete(), 1000 * 30));
 }

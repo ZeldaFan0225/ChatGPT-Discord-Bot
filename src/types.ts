@@ -143,6 +143,10 @@ export interface Config {
         quality?: "standard" | "hd",
         default_size?: string
     }
+    assistants?: {
+        result_fetching_max_count?: number,
+        allow_collaboration?: boolean
+    }
     generation_parameters?: {
         moderate_prompts?: boolean,
         default_system_instruction?: string,
@@ -166,6 +170,7 @@ export interface Config {
     features?: {
         chat_single?: boolean,
         chat_thread?: boolean,
+        assistants?: boolean,
         image_in_prompt?: boolean,
         create_image?: boolean,
         regenerate_button?: boolean,
@@ -207,4 +212,120 @@ export interface DallE3ResponseData {
         url: string,
         revised_prompt?: string
     }[]
+}
+
+export interface AssistantCreateOptions {
+    model: string,
+    name?: string,
+    description?: string,
+    instructions?: string,
+    tools?: (AssistantCodeInterpreterTool | AssistantRetrievalTool | AssistantFunctionTool)[],
+    file_ids?: string[],
+    metadata?: Record<string, string>
+}
+
+export interface AssistantData extends Required<AssistantCreateOptions> {
+    id: string,
+    object: "assistant",
+    created_at: number,
+}
+
+export interface AssistantCodeInterpreterTool {
+    type: "code_interpreter"
+}
+
+export interface AssistantRetrievalTool {
+    type: "retrieval"
+}
+
+export interface AssistantFunctionTool {
+    type: "function",
+    function: {
+        description: string,
+        name: string,
+        parameters: Record<string, any>
+    }
+}
+
+export interface ModelData {
+    id: string,
+    object: "model",
+    created: number,
+    owned_by: string
+}
+
+export interface AssistantThreadData {
+    id: string,
+    object: "thread",
+    created_at: number,
+    metadata: Record<string, string>
+}
+
+export interface AssistantThreadMessagePayload {
+    role: "user" | "assistant",
+    content: string,
+    file_ids?: string[],
+    metadata?: Record<string, string>
+}
+
+export interface AssistantThreadMessageData extends Required<Omit<AssistantThreadMessagePayload, "content">> {
+    id: string,
+    object: "thread.message",
+    created_at: number,
+    thread_id: string,
+    assistant_id?: string,
+    run_id?: string,
+    content: ({
+        type: "text",
+        text: {
+            value: string,
+            annotations: ({
+                type: "file_citation",
+                text: string,
+                file_citation: {
+                    file_id: string,
+                    quote: string
+                },
+                start_index: number,
+                end_index: number
+            } | {
+                type: "file_path",
+                text: string,
+                file_path: {
+                    file_id: string,
+                },
+                start_index: number,
+                end_index: number
+            })[]
+        }
+    } | {
+        type: "image_file",
+        image_file: {
+            file_id: string
+        }
+    })[]
+}
+
+export interface AssistantRunPayload {
+    assistant_id: string,
+    model?: string,
+    instructions?: string,
+    tools?: (AssistantCodeInterpreterTool | AssistantRetrievalTool | AssistantFunctionTool)[],
+    metadata?: Record<string, string>
+}
+
+export interface AssistantRunData extends Required<AssistantRunPayload> {
+    id: string,
+    object: "assistant.run",
+    created_at: number,
+    thread_id: string,
+    status: "queued" | "in_progress" | "requires_action" | "cancelling" | "cancelled" | "failed" | "completed" | "completed" | "expired",
+    required_action?: {
+        type: "submit_tool_outputs",
+        submit_tool_outputs: any
+    },
+    expires_at?: number,
+    started_at?: number,
+    failed_at?: number,
+    completed_at?: number,
 }

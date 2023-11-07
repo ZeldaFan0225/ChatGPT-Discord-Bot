@@ -1,5 +1,28 @@
 # Update Instructions
 
+# 1.7.0 => 1.8.0
+
+- Add the following keys to your `config.json` file:
+ - `assistants` (child of `features`)
+ - `assistants`
+ - `allow_collaboration` (child of `assistants`)
+ - `result_fetching_max_count` (child of `assistants`)
+
+
+
+Look at [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md) for information on what the key does
+
+# 1.6.1 => 1.7.0
+
+- Add the following keys to your `config.json` file:
+ - `default_dalle_model`
+ - `generate_image`
+ - `quality` (child of `generate_image`)
+ - `image_in_prompt` (child of `features`)
+ - `create_image` (child of `features`)
+
+Look at [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md) for information on what the key does
+
 # 1.6.0 => 1.6.1
 
 - Add the key `auto_create_commands` to your `config.json` file and set it to true for it to work like before the update look at [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md) for information on what the key does

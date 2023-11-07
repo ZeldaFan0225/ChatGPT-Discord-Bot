@@ -2,10 +2,11 @@
 
 A basic Discord bot to generate chat completions using OpenAIs Chat Completion API.
 
-**DISCLAIMER:** THIS REPOSITORY IS IN NO WAY ASSOCIATED TO OPENAI  
+**DISCLAIMER:**  
+THIS REPOSITORY IS IN NO WAY ASSOCIATED TO OPENAI  
 OFFERING THIS CODE IN FORM OF A PUBLIC DISCORD BOT WHICH CAN BE INVITED BY EVERYBODY IS NOT SUPPORTED.  
-THE SCALE OF A BOT USING THIS CODE IS 1 SERVER, EVERYTHING ABOVE IS NOT SUPPORTED.  
-THE MAINTAINERS OF THE REPOSITORY ARE IN NO WAY RESPONSIBLE FOR WHAT REQUEST DATA IS SENT TO OPENAI  
+THE SCALE OF A BOT USING THIS CODE IS 1 SERVER, EVERYTHING ABOVE IS NEITHER ALLOWED NOR SUPPORTED.  
+THE MAINTAINERS OF THE REPOSITORY ARE IN NO WAY RESPONSIBLE FOR WHAT USER-GENERATED REQUEST CONTENT IS SENT TO OPENAI  
   
 Please make sure to follow [OpenAIs usage policies](https://platform.openai.com/docs/usage-policies)
 
@@ -25,6 +26,8 @@ The bot has the following features:
 - advanced configuration
 - logging to detect tos-breaking prompts
 - ability to blacklist
+- generating images using DallE-3 with /create_image
+- creating threads with assistants using /assistants
 
 If you want some inspiration on system instructions for the GPT model you can view [my repository](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot-System-Instructions) for it.  
 

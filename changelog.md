@@ -1,5 +1,12 @@
 # Changelog
 
+## V1.8.0
+
+- Assistants:
+ - create a thread 
+ - apply the assistant to it
+ - export the thread
+
 ## V1.7.0
 
 - add /create_image to create an image using DallE-3

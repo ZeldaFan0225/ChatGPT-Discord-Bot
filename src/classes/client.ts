@@ -1,10 +1,9 @@
 import SuperMap from "@thunder04/supermap";
-import Centra from "centra";
 import { Client, ClientOptions, GuildMember } from "discord.js";
 import {existsSync, mkdirSync, writeFileSync, readFileSync, appendFileSync} from "fs"
 import { Pool } from "pg";
 import { Store } from "../stores/store";
-import { Config, DallE3APIOptions, DallE3GenerationOptions, DallE3ResponseData, OpenAIChatCompletionResponse, OpenAIModerationResponse, StoreTypes } from "../types";
+import { AssistantCreateOptions, AssistantData, AssistantRunData, AssistantThreadData, AssistantThreadMessageData, AssistantThreadMessagePayload, Config, DallE3APIOptions, DallE3GenerationOptions, DallE3ResponseData, ModelData, OpenAIChatCompletionResponse, OpenAIModerationResponse, StoreTypes } from "../types";
 import GPT3Tokenizer from 'gpt3-tokenizer';
 
 export class ChatGPTBotClient extends Client {
@@ -16,6 +15,7 @@ export class ChatGPTBotClient extends Client {
 	cooldown: SuperMap<string, any>
 	cache: SuperMap<string, boolean>
 	blacklisted: SuperMap<string, boolean>
+	assistants: SuperMap<string, AssistantData>
 	#tokenizer: GPT3Tokenizer
 
 	constructor(options: ClientOptions) {
@@ -34,7 +34,9 @@ export class ChatGPTBotClient extends Client {
 		this.blacklisted = new SuperMap({
 			intervalTime: 1000
 		})
+		this.assistants = new SuperMap()
         this.loadConfig()
+		this.loadAssistants()
 		this.#tokenizer = new GPT3Tokenizer({type: "gpt3"})
 	}
 
@@ -42,6 +44,26 @@ export class ChatGPTBotClient extends Client {
         const config = JSON.parse(readFileSync("./config.json").toString())
         this.config = config as Config
     }
+
+	async loadAssistants() {
+		const req = await fetch(`https://api.openai.com/v1/assistants?limit=100`, {
+			method: "GET",
+			headers: {
+				"OpenAI-Beta": "assistants=v1",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			}
+		})
+
+		const assistants: {data: AssistantData[]} = await req.json()
+
+		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(`${assistants?.data.length || "No"} Assistants loaded`)
+
+		if(assistants.data) {
+			for(let assistant of assistants.data) {
+				this.assistants.set(assistant.id, assistant)
+			}
+		}
+	}
 
 	initLogDir() {
 		const log_dir = this.config.logs?.directory ?? "/logs"
@@ -66,13 +88,18 @@ export class ChatGPTBotClient extends Client {
 
 	async checkIfPromptGetsFlagged(message: string): Promise<boolean> {
 		if(!this.config.generation_parameters?.moderate_prompts) return false;
-		const openai_req = Centra(`https://api.openai.com/v1/moderations`, "POST")
-        .body({
-            input: message
-        }, "json")
-        .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
+		const openai_req = await fetch(`https://api.openai.com/v1/moderations`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			},
+			body: JSON.stringify({
+				input: message
+			})
+		})
 
-        const data: OpenAIModerationResponse = await openai_req.send().then(res => res.json())
+        const data: OpenAIModerationResponse = await openai_req.json()
 		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(data)
 		return !!data?.results[0]?.flagged
 	}
@@ -119,20 +146,25 @@ export class ChatGPTBotClient extends Client {
 		const total_count = messages.map(m => this.tokenizeString(typeof m.content === "string" ? m.content : m.content.find(c => c.type === "text")?.text!).count + 5).reduce((a, b) => a + b) + 2
 
 	
-		const openai_req = Centra(`${override_options?.base_url ?? "https://api.openai.com"}/v1/chat/completions`, "POST")
-        .body({
-            model,
-            messages,
-            temperature: override_options?.temperature ?? this.config.generation_parameters?.temperature,
-            top_p: this.config.generation_parameters?.top_p,
-            frequency_penalty: this.config.generation_parameters?.frequency_penalty,
-            presence_penalty: this.config.generation_parameters?.presence_penalty,
-            max_tokens: this.config.generation_parameters?.max_completion_tokens_per_model?.[model] === -1 ? undefined : ((this.config.generation_parameters?.max_completion_tokens_per_model?.[model] ?? 4096) - total_count),
-            user: user_id
-        }, "json")
-        .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
+		const openai_req = await fetch(`${override_options?.base_url ?? "https://api.openai.com"}/v1/chat/completions`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			},
+			body: JSON.stringify({
+				model,
+				messages,
+				temperature: override_options?.temperature ?? this.config.generation_parameters?.temperature,
+				top_p: this.config.generation_parameters?.top_p,
+				frequency_penalty: this.config.generation_parameters?.frequency_penalty,
+				presence_penalty: this.config.generation_parameters?.presence_penalty,
+				max_tokens: this.config.generation_parameters?.max_completion_tokens_per_model?.[model] === -1 ? undefined : ((this.config.generation_parameters?.max_completion_tokens_per_model?.[model] ?? 4096) - total_count),
+				user: user_id
+			})
+		})
 
-        const data: OpenAIChatCompletionResponse = await openai_req.send().then(res => res.json())
+        const data: OpenAIChatCompletionResponse = await openai_req.json()
 		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(data)
 
 		if (this.config.logs?.enabled) {
@@ -165,12 +197,17 @@ export class ChatGPTBotClient extends Client {
 			user
 		}
 
-		const openai_req = Centra(`https://api.openai.com/v1/images/generations`, "POST")
-        .body(options, "json")
-        .header("Authorization", `Bearer ${process.env["OPENAI_TOKEN"]}`)
+		const openai_req = await fetch(`https://api.openai.com/v1/images/generations`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			},
+			body: JSON.stringify(options)
+		})
 
 		
-        const data: DallE3ResponseData = await openai_req.send().then(res => res.json())
+        const data: DallE3ResponseData = await openai_req.json()
 		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(data)
 
 		if (this.config.logs?.enabled) {
@@ -202,5 +239,129 @@ export class ChatGPTBotClient extends Client {
 
 		const res = await database.query("UPDATE user_data SET tokens=user_data.tokens+$2, cost=user_data.cost+$3 WHERE user_id=$1 RETURNING *", [user_id, (tokens.completion + tokens.prompt), cost]).catch(console.error)
 		return !!res?.rowCount
+	}
+
+	async getModels() {
+		const req = await fetch(`https://api.openai.com/v1/models`, {
+			method: "GET",
+			headers: {
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			}
+		})
+
+		const data: {object: "list", data: ModelData[]} = await req.json()
+
+		if(!data) throw new Error("Unable to fetch assistants")
+
+		return data;
+	}
+
+	async createAssistant(options: AssistantCreateOptions) {
+		const req = await fetch(`https://api.openai.com/v1/assistants`, {
+			method: "POST",
+			headers: {
+				"OpenAI-Beta": "assistants=v1",
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			},
+			body: JSON.stringify(options)
+		})
+
+		const data: AssistantData | {error: {message: string}} = await req.json()
+
+		if(!data) throw new Error("Unable to create assistant")
+
+		return data;
+	}
+
+	async createThread(channel_id: string) {
+		const req = await fetch(`https://api.openai.com/v1/threads`, {
+			method: "POST",
+			headers: {
+				"OpenAI-Beta": "assistants=v1",
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			},
+			body: JSON.stringify({metadata: {"DISCORD_CHANNEL_ID": channel_id}})
+		})
+
+		const data: AssistantThreadData | {error: {message: string}} = await req.json()
+
+		if(!data) throw new Error("Unable to create assistant")
+
+		return data;
+	}
+
+	async addMessageToThread(thread_id: string, message: AssistantThreadMessagePayload) {
+		const req = await fetch(`https://api.openai.com/v1/threads/${thread_id}/messages`, {
+			method: "POST",
+			headers: {
+				"OpenAI-Beta": "assistants=v1",
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			},
+			body: JSON.stringify(message)
+		})
+
+		const data: AssistantThreadMessageData | {error: {message: string}} = await req.json()
+
+		if(!data) throw new Error("Unable to create assistant")
+
+		return data;
+
+	}
+
+	async runAssistantOnThread(thread_id: string, assistant_id: string) {
+		const req = await fetch(`https://api.openai.com/v1/threads/${thread_id}/runs`, {
+			method: "POST",
+			headers: {
+				"OpenAI-Beta": "assistants=v1",
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			},
+			body: JSON.stringify({
+				assistant_id
+			})
+		})
+
+		const data: AssistantRunData | {error: {message: string}} = await req.json()
+
+		if(!data) throw new Error("Unable to create assistant")
+
+		return data;
+	}
+
+	async getThreadMessages(thread_id: string) {
+		const req = await fetch(`https://api.openai.com/v1/threads/${thread_id}/messages?limit=100&order=desc`, {
+			method: "GET",
+			headers: {
+				"OpenAI-Beta": "assistants=v1",
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			}
+		})
+
+		const data: {object: "list", data: AssistantThreadMessageData[]} = await req.json()
+
+		if(!data) throw new Error("Unable to create assistant")
+
+		return data;
+	}
+
+	async getRunData(thread_id: string, run_id: string) {
+		const req = await fetch(`https://api.openai.com/v1/threads/${thread_id}/runs/${run_id}`, {
+			method: "GET",
+			headers: {
+				"OpenAI-Beta": "assistants=v1",
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+			}
+		})
+
+		const data: AssistantRunData = await req.json()
+
+		if(!data) throw new Error("Unable to create assistant")
+
+		return data;
 	}
 }
