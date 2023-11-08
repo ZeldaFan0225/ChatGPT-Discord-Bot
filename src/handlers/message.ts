@@ -35,7 +35,7 @@ async function error(message: Message, content: string) {
 
 async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool) {
     if(!message.member || !client.config.hey_gpt?.activation_phrases) return;
-    const phrases = (client.config.hey_gpt?.activation_phrases || []) as (string | {phrase: string;system_instruction: string; model?: string; allow_images?: boolean})[]
+    const phrases = (client.config.hey_gpt?.activation_phrases || []) as (string | {phrase: string;system_instruction: string; model?: string; allow_images?: boolean, image_detail?: string})[]
     const activation_phrase = phrases.find(p => message.content.toLowerCase().startsWith((typeof p === "string" ? p : p.phrase).toLowerCase()))
     if(!activation_phrase) return;
     const activation_data = typeof activation_phrase === "string" ? undefined : activation_phrase
@@ -77,7 +77,10 @@ async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool
                 },
                 ...images.map(i => ({
                     type: "image_url" as const,
-                    image_url: i.url
+                    image_url: {
+                        url: i.url,
+                        detail: activation_data.image_detail || "low"
+                    },
                 }))
             ]
         })

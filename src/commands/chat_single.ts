@@ -205,7 +205,10 @@ export default class extends Command {
                 },
                 {
                     type: "image_url" as const,
-                    image_url: image.url
+                    image_url: {
+                        url: image.url,
+                        detail: ctx.client.config.generation_parameters?.image_detail || "low"
+                    }
                 }
             ]
         })

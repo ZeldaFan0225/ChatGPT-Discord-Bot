@@ -8,6 +8,7 @@
  - `allow_collaboration` (child of `assistants`)
  - `result_fetching_max_count` (child of `assistants`)
  - `assistant_ids` (child of `assistants`)
+ - `image_detail` (child of `generation_parameters`)
 
 Look at [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md) for information on what the key does
 

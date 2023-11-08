@@ -137,7 +137,7 @@ export interface Config {
         model?: string,
         processing_emoji?: string,
         system_instruction?: string,
-        activation_phrases?: string[] | {phrase: string, system_instruction: string, model?: string, allow_images?: boolean}[],
+        activation_phrases?: string[] | {phrase: string, system_instruction: string, model?: string, allow_images?: boolean, image_detail?: string}[],
     },
     generate_image?: {
         quality?: "standard" | "hd",
@@ -155,6 +155,7 @@ export interface Config {
         top_p?: number,
         presence_penalty?: number,
         frequency_penalty?: number,
+        image_detail?: string,
         max_completion_tokens_per_model?: Record<string, number>,
         max_input_tokens_per_model?: Record<string, number>
     },

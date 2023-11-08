@@ -137,7 +137,7 @@ export class ChatGPTBotClient extends Client {
         return member.roles.cache.some(r => this.config.staff_roles?.includes(r.id))
     }
 
-	async requestChatCompletion(messages: {role: string, content: string | {type: "text" | "image_url", text?: string, image_url?: string}[]}[], user_id: string, database: Pool, override_options?: {
+	async requestChatCompletion(messages: {role: string, content: string | {type: "text" | "image_url", text?: string, image_url?: {url: string, detail?: string}}[]}[], user_id: string, database: Pool, override_options?: {
 		temperature?: number,
 		model?: string,
 		base_url?: string

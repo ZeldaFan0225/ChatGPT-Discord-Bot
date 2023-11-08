@@ -46,7 +46,8 @@
                 "phrase": "hey assistant",
                 "system_instruction": "You are a smart and funny assistant",
                 "model": "gpt-4",
-                "allow_images": false
+                "allow_images": false,
+                "image_detail": "low"
             }
         ]
     },
@@ -68,6 +69,7 @@
         "top_p": 1,
         "presence_penalty": 0,
         "frequency_penalty": 0,
+        "image_detail": "low",
         "max_completion_tokens_per_model": {
             "gpt-3.5-turbo": -1,
             "gpt-3.5-turbo-0301": -1,
