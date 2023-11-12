@@ -33,8 +33,8 @@ If you want some inspiration on system instructions for the GPT model you can vi
 
 ## Version Requirements
 
-- NodeJS >= 16.16  
-- PostgreSQL >= 14.6  
+- [NodeJS](https://nodejs.org/en/download/) >= 18.17  
+- [PostgreSQL](https://www.postgresql.org/download/) >= 14.6  
 
 ## How to set up
 
