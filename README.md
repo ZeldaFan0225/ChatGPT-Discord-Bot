@@ -42,7 +42,10 @@ If you want some inspiration on system instructions for the GPT model you can vi
 2) get the token of your discord bot (https://discord.com/developers/docs/reference#authentication)  
 3) Install the node modules using `npm i` (make sure the dev dependencies are also installed for typescript to work)  
 4) remove the `template.` from the `template.config.json` file  
-5) set up a postgres database  
+5) set up a postgres database (an official installation guide can be found [here](https://www.postgresql.org/docs/current/installation.html))  
+- this includes:
+  - creating a new postgres user (preferrably with password)
+  - creating a new database
 6) fill out the `template.env` and rename it to `.env`   
 7) modify the [config.json](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/template.config.json) file (from step 4) to fit your needs (you can read about what which property does in [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md))  
 8) compile the code and start the process (this can be done by using `npm run deploy`)  
