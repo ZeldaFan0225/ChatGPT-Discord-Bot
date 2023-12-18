@@ -78,7 +78,7 @@ export default class extends Command {
                 content: message
             })
 
-            if(ctx.client.config.max_thread_folowup_length && messages.filter(m => m.role === "user").length > ctx.client.config.max_thread_folowup_length) return ctx.error({error: "Max length of this conversation reached"})
+            if(ctx.client.config.max_thread_followup_length && messages.filter(m => m.role === "user").length > ctx.client.config.max_thread_followup_length) return ctx.error({error: "Max length of this conversation reached"})
 
             if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
             if(ctx.client.cache.has(ctx.interaction.channelId)) return ctx.error({error: "Somebody else is currently generating an answer for this thread. Please wait until they are finished"})

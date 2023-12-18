@@ -32,7 +32,7 @@
         "debug_logs": true
     },
     "global_user_cooldown": 60000,
-    "max_thread_folowup_length": 5,
+    "max_thread_followup_length": 5,
     "allow_collaboration": false,
     "hey_gpt": {
         "enabled": false,

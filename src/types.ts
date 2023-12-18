@@ -129,7 +129,7 @@ export interface Config {
         debug_logs?: boolean
     },
     global_user_cooldown?: number,
-    max_thread_folowup_length?: number
+    max_thread_followup_length?: number
     allow_collaboration?: boolean
     hey_gpt?: {
         enabled?: boolean,
