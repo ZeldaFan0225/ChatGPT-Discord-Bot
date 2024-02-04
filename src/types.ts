@@ -121,7 +121,7 @@ export interface Config {
     blacklist_roles?: string[],
     default_model?: string,
     default_dalle_model?: string,
-    selectable_models?: (string | {name: string, base_url?: string, supports_images?: boolean})[],
+    selectable_models?: (string | {name: string, base_url?: string, supports_images?: boolean, env_token_name?: string})[],
     staff_can_bypass_feature_restrictions?: boolean,
     dev_config?: {
         enabled?: boolean,

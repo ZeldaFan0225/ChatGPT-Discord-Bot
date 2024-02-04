@@ -11,7 +11,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     "blacklist_roles": Blacklist users based on their roles. Staff have full bypass (ARRAY OF ROLE IDS),
     "default_model": The default model to use. Model must support chat completion (STRING) *8,
     "default_dalle_model": The default dalle model to use in /create_image *1 *2,
-    "selectable_models": A list of models the users can select from (ARRAY OF ChAT COMPLETION MODEL NAMES) *1 *4 *12
+    "selectable_models": A list of models the users can select from (ARRAY OF CHAT COMPLETION MODEL NAMES) *1 *4 *12 *14
     "staff_can_bypass_feature_restrictions": When set to true staff won't be restricted by features turned off (BOOLEAN) *4,
     "dev": Whether this is a development instance or not (BOOLEAN) *3,
     "global_user_cooldown": The time until a user can send a new request in milliseconds (NUMBER),
@@ -86,5 +86,6 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*9` The value can not exceed 6000
 `*10` It is recommended to set this value to `-1` to avoid errors.  
 `*11` When set to false changes in the config file will not be applied to commands on startup, only when using /reload_config THE DEFAULT IS TRUE  
-`*12` For better configuration instead of the name the following can be given: `{name: string, base_url?: string, supports_images?: boolean}`  
-`*12` For better configuration instead of the activation phrase the following can be given: `{phrase: string, system_instruction: string, model?: string, allow_images?: boolean, image_detail?: "high" | "low"}`
+`*12` For better configuration instead of the name the following can be given: `{name: string, base_url?: string, supports_images?: boolean, env_token_name?: string}`  
+`*13` For better configuration instead of the activation phrase the following can be given: `{phrase: string, system_instruction: string, model?: string, allow_images?: boolean, image_detail?: "high" | "low"}`
+`*14` When providing `env_token_name` you have to add a auth key to the .env with the exact name of the `env_token_name` similar to the `OPENAI_TOKEN` key

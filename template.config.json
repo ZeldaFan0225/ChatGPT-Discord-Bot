@@ -18,7 +18,8 @@
         {
             "name": "gpt-3.5-turbo-16k",
             "base_url": "https://api.openai.com",
-            "supports_images": false
+            "supports_images": false,
+            "env_token_name": "OPENAI_TOKEN"
         },
         {
             "name": "gpt-4-vision-preview",

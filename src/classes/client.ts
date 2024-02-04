@@ -140,7 +140,8 @@ export class ChatGPTBotClient extends Client {
 	async requestChatCompletion(messages: {role: string, content: string | {type: "text" | "image_url", text?: string, image_url?: {url: string, detail?: string}}[]}[], user_id: string, database: Pool, override_options?: {
 		temperature?: number,
 		model?: string,
-		base_url?: string
+		base_url?: string,
+		env_token_name?: string
 	}) {
 		const model = override_options?.model || this.config.default_model || "gpt-3.5-turbo"
 		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model)
@@ -152,7 +153,7 @@ export class ChatGPTBotClient extends Client {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": `Bearer ${process.env["OPENAI_TOKEN"]}`
+				"Authorization": `Bearer ${process.env[override_options?.env_token_name || "OPENAI_TOKEN"]}`
 			},
 			body: JSON.stringify({
 				model,

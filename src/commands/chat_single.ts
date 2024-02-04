@@ -215,12 +215,13 @@ export default class extends Command {
 
         if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
-        const override: {model?: string, base_url?: string} = {}
+        const override: {model?: string, base_url?: string, env_token_name?: string} = {}
         if(typeof model === "string") {
             override.model = model
         } else {
             override.model = model?.name
             override.base_url = model?.base_url
+            override.env_token_name = model?.env_token_name
         }
 
         const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, override).catch(console.error)

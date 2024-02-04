@@ -1,5 +1,9 @@
 # Changelog
 
+## V1.8.1
+
+- Add the ability to use different API keys per selectable model
+
 ## V1.8.0
 
 - Assistants:

@@ -85,12 +85,13 @@ export default class extends Command {
 
             ctx.client.cache.set(ctx.interaction.channelId, true, 1000 * 60 * 15)
             
-            const override: {model?: string, base_url?: string} = {}
+            const override: {model?: string, base_url?: string, env_token_name?: string} = {}
             if(typeof model === "string") {
                 override.model = model
             } else {
                 override.model = model?.name
-                override.model = model?.base_url
+                override.base_url = model?.base_url
+                override.env_token_name = model?.env_token_name
             }
 
             const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, override).catch(console.error)
@@ -201,12 +202,13 @@ ${system_instruction ?? "NONE"}`,
 
         await reply.react("⌛")
         
-        const override: {model?: string, base_url?: string} = {}
+        const override: {model?: string, base_url?: string, env_token_name?: string} = {}
         if(typeof model === "string") {
             override.model = model
         } else {
             override.model = model?.name
-            override.model = model?.base_url
+            override.base_url = model?.base_url
+            override.env_token_name = model?.env_token_name
         }
 
         const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, override).catch(console.error)
