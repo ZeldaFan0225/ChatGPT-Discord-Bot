@@ -1,17 +1,18 @@
 import SuperMap from "@thunder04/supermap";
 import { Client, ClientOptions, GuildMember } from "discord.js";
-import {existsSync, mkdirSync, writeFileSync, readFileSync, appendFileSync} from "fs"
+import {existsSync, mkdirSync, writeFileSync, appendFileSync} from "fs"
 import { Pool } from "pg";
 import { Store } from "../stores/store";
-import { AssistantCreateOptions, AssistantData, AssistantRunData, AssistantThreadData, AssistantThreadMessageData, AssistantThreadMessagePayload, Config, DallE3APIOptions, DallE3GenerationOptions, DallE3ResponseData, ModelData, OpenAIChatCompletionResponse, OpenAIModerationResponse, StoreTypes } from "../types";
+import { AssistantCreateOptions, AssistantData, AssistantRunData, AssistantThreadData, AssistantThreadMessageData, AssistantThreadMessagePayload, ChatCompletionMessages, DallE3APIOptions, DallE3GenerationOptions, DallE3ResponseData, ModelConfiguration, ModelCost, ModelData, OpenAIChatCompletionResponse, OpenAIModerationResponse, StoreTypes } from "../types";
 import GPT3Tokenizer from 'gpt3-tokenizer';
+import { ConfigValidator } from "./configValidator";
 
 export class ChatGPTBotClient extends Client {
 	commands: Store<StoreTypes.COMMANDS>;
 	components: Store<StoreTypes.COMPONENTS>;
 	contexts: Store<StoreTypes.CONTEXTS>;
 	modals: Store<StoreTypes.MODALS>;
-    config: Config
+    #config: ConfigValidator
 	cooldown: SuperMap<string, any>
 	cache: SuperMap<string, boolean>
 	blacklisted: SuperMap<string, boolean>
@@ -24,7 +25,6 @@ export class ChatGPTBotClient extends Client {
 		this.components = new Store<StoreTypes.COMPONENTS>({files_folder: "/components", load_classes_on_init: false, storetype: StoreTypes.COMPONENTS});
 		this.contexts = new Store<StoreTypes.CONTEXTS>({files_folder: "/contexts", load_classes_on_init: false, storetype: StoreTypes.CONTEXTS});
 		this.modals = new Store<StoreTypes.MODALS>({files_folder: "/modals", load_classes_on_init: false, storetype: StoreTypes.MODALS});
-        this.config = {}
 		this.cooldown = new SuperMap({
 			intervalTime: 1000
 		})
@@ -35,15 +35,18 @@ export class ChatGPTBotClient extends Client {
 			intervalTime: 1000
 		})
 		this.assistants = new SuperMap()
-        this.loadConfig()
+		this.#config = new ConfigValidator()
 		this.loadAssistants()
 		this.#tokenizer = new GPT3Tokenizer({type: "gpt3"})
 	}
 
-    loadConfig() {
-        const config = JSON.parse(readFileSync("./config.json").toString())
-        this.config = config as Config
-    }
+	get config() {
+		return this.#config.config
+	}
+
+	reloadConfig() {
+		this.#config.reloadConfig()
+	}
 
 	async loadAssistants() {
 		const req = await fetch(`https://api.openai.com/v1/assistants?limit=100`, {
@@ -88,8 +91,13 @@ export class ChatGPTBotClient extends Client {
 		else return `/${name}`
 	}
 
+    is_staff(member: GuildMember) {
+        if(!member) return false;
+        if(this.config.staff_users?.includes(member.id)) return true;
+        return member.roles.cache.some(r => this.config.staff_roles?.includes(r.id))
+    }
+
 	async checkIfPromptGetsFlagged(message: string): Promise<boolean> {
-		if(!this.config.generation_parameters?.moderate_prompts) return false;
 		const openai_req = await fetch(`https://api.openai.com/v1/moderations`, {
 			method: "POST",
 			headers: {
@@ -131,38 +139,37 @@ export class ChatGPTBotClient extends Client {
 		}
 	}
 
-    is_staff(member: GuildMember) {
-        if(!member) return false;
-        if(this.config.staff_users?.includes(member.id)) return true;
-        return member.roles.cache.some(r => this.config.staff_roles?.includes(r.id))
-    }
+	async requestChatCompletion(messages: ChatCompletionMessages[], model_config: ModelConfiguration, user_id: string, database: Pool) {
+		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model_config)
 
-	async requestChatCompletion(messages: {role: string, content: string | {type: "text" | "image_url", text?: string, image_url?: {url: string, detail?: string}}[]}[], user_id: string, database: Pool, override_options?: {
-		temperature?: number,
-		model?: string,
-		base_url?: string,
-		env_token_name?: string
-	}) {
-		const model = override_options?.model || this.config.default_model || "gpt-3.5-turbo"
-		if(this.config.dev_config?.enabled && this.config.dev_config.debug_logs) console.log(model)
-
-		const total_count = messages.map(m => this.tokenizeString(typeof m.content === "string" ? m.content : m.content.find(c => c.type === "text")?.text!).count + 5).reduce((a, b) => a + b) + 2
-
+		const total_count = messages.map(m =>
+			this.tokenizeString(
+				typeof m.content === "string" ?
+					m.content :
+					m.content?.filter(c => "text" in c).map(c => (c as {text:string}).text ?? "").join("") || ""
+			).count + 5
+		).reduce((a, b) => a + b) + 2
 	
-		const openai_req = await fetch(`${override_options?.base_url ?? "https://api.openai.com"}/v1/chat/completions`, {
+		const openai_req = await fetch(`${model_config.base_url ?? "https://api.openai.com/v1"}/chat/completions`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": `Bearer ${process.env[override_options?.env_token_name || "OPENAI_TOKEN"]}`
+				"Authorization": `Bearer ${process.env[model_config.env_token_name || "OPENAI_TOKEN"]}`
 			},
 			body: JSON.stringify({
-				model,
+				model: model_config.model,
 				messages,
-				temperature: override_options?.temperature ?? this.config.generation_parameters?.temperature,
-				top_p: this.config.generation_parameters?.top_p,
-				frequency_penalty: this.config.generation_parameters?.frequency_penalty,
-				presence_penalty: this.config.generation_parameters?.presence_penalty,
-				max_tokens: this.config.generation_parameters?.max_completion_tokens_per_model?.[model] === -1 ? undefined : ((this.config.generation_parameters?.max_completion_tokens_per_model?.[model] ?? 4096) - total_count),
+				temperature: model_config?.defaults?.temperature,
+				top_p: model_config?.defaults?.top_p,
+				frequency_penalty: model_config?.defaults?.frequency_penalty,
+				presence_penalty: model_config?.defaults?.presence_penalty,
+				logit_bias: model_config?.defaults?.logit_bias,
+				logprobs: model_config?.defaults?.logprobs,
+				top_logprobs: model_config?.defaults?.top_logprobs,
+				response_format: model_config.defaults?.response_format,
+				seed: model_config?.defaults?.seed,
+				stop: model_config?.defaults?.stop,
+				max_tokens: model_config?.max_completion_tokens === -1 ? undefined : ((model_config?.max_model_tokens ?? 4096) - total_count),
 				user: user_id
 			})
 		})
@@ -184,7 +191,7 @@ export class ChatGPTBotClient extends Client {
 
 		if(!data?.id) throw new Error("Unable to generate response")
 		
-        await this.recordSpentTokens(user_id, {prompt: data.usage.prompt_tokens, completion: data.usage.completion_tokens}, model, database)
+        if(model_config.cost) await this.recordSpentTokens(user_id, {prompt: data.usage.prompt_tokens, completion: data.usage.completion_tokens}, database, model_config.cost)
 
 		return data
 	}
@@ -230,14 +237,14 @@ export class ChatGPTBotClient extends Client {
 		return data
 	}
 
-	async recordSpentTokens(user_id: string, tokens: {prompt: number, completion: number}, model: string, database: Pool) {
+	async recordSpentTokens(user_id: string, tokens: {prompt: number, completion: number}, database: Pool, model_cost?: ModelCost) {
 		if(!this.config.features?.user_stats) return false;
 
 		let cost = 0
 
-		if(this.config.costs?.[model]) {
-			cost += (this.config.costs?.[model]?.prompt || 0) * (tokens.prompt / 1000)
-			cost += (this.config.costs?.[model]?.completion || 0) * (tokens.completion / 1000)
+		if(model_cost) {
+			cost += (model_cost?.prompt || 0) * (tokens.prompt / 1000)
+			cost += (model_cost?.completion || 0) * (tokens.completion / 1000)
 		}
 
 		const res = await database.query("UPDATE user_data SET tokens=user_data.tokens+$2, cost=user_data.cost+$3 WHERE user_id=$1 RETURNING *", [user_id, (tokens.completion + tokens.prompt), cost]).catch(console.error)

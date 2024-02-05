@@ -29,9 +29,14 @@ export default class extends Component {
         if(ctx.interaction.message.interaction?.user.id !== ctx.interaction.user.id) return;
         const embed = ctx.interaction.message.embeds[0]
         if(!embed?.description) return;
-        const [message, ...response] = embed?.description.split("\n\n**ChatGPT (")
+        const [message, ...response] = embed?.description.split("\n\n**AI ChatBot (")
         const system_instruction_name = embed?.description.matchAll(/\*\*ChatGPT \((?<name>[A-Z a-z0-9_-]+)\)\:\*\*/g)?.next()?.value?.groups?.name ?? "default"
-        const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name.toLowerCase())?.system_instruction
+        const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_settings?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name)?.system_instruction
+        
+        const model_configuration_name = embed?.footer?.text.matchAll(/\((?<name>[A-Z a-z0-9_-]+)\)/g)?.next()?.value?.groups?.name
+        if(!model_configuration_name) return ctx.error({error: "Unable to find model configuration"})
+        const model_configuration = ctx.client.config.models?.[model_configuration_name]
+        if(!model_configuration) return ctx.error({error: "Model configuration not found"})
         const messages = []
         
         if(system_instruction?.length) messages.push({role: "system", content: system_instruction})
@@ -44,15 +49,16 @@ export default class extends Component {
         })
 
         const thread = await ctx.interaction.message.startThread({
-            name: `ChatGPT Chat ${ctx.interaction.user.username}`,
+            name: `AI Assitant Chat ${ctx.interaction.user.username}`,
         }).catch(console.error)
         if(!thread) return;
         await thread.members.add(ctx.interaction.user)
 
-        const db_save = await ctx.database.query('INSERT INTO chats (id, user_id, messages) VALUES ($1, $2, $3) RETURNING *', [
+        const db_save = await ctx.database.query('INSERT INTO chats (id, user_id, messages, model_configuration) VALUES ($1, $2, $3, $4) RETURNING *', [
             thread.id,
             ctx.interaction.user.id,
-            messages
+            messages,
+            model_configuration_name
         ]).catch(console.error)
         
         if(!db_save?.rowCount) await thread.setLocked(true)

@@ -1,6 +1,6 @@
 import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
-import { ChatData } from "../types";
+import { ChatCompletionMessages, ChatData } from "../types";
 import { EmbedBuilder, embedLength } from "@discordjs/builders";
 import { AttachmentBuilder, ButtonBuilder, Colors, InteractionEditReplyOptions } from "discord.js";
 import { AutocompleteContext } from "../classes/autocompleteContext";
@@ -25,16 +25,23 @@ export default class extends Command {
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         let message = ctx.interaction.options.getString("message", true)
         const modal = ctx.interaction.options.getBoolean("form_input") ?? false
+
+        let model_configuration_name = ctx.interaction.options.getString("model") ?? ctx.client.config.generation_settings?.default_model
+        if(!model_configuration_name) return ctx.error({error: "No model found"})
+        let model_configuration = ctx.client.config.models?.[model_configuration_name]
+        if(!model_configuration) return ctx.error({error: "No model found"})
+        
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
-        const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name.toLowerCase())?.system_instruction
-        if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
-        const model_name = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
-        const model = ctx.client.config.selectable_models?.find(m => typeof m === "string" ? m === model_name : m.name === model_name)
+        const system_instruction = system_instruction_name === "default" ? 
+            ctx.client.config.generation_settings?.default_system_instruction :
+            ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name?.toLowerCase())?.system_instruction ?? ctx.client.config.generation_settings?.default_system_instruction
+        
+        if(!system_instruction && system_instruction_name !== "default") return ctx.error({error: "Unable to find system instruction"})
         const image = ctx.interaction.options.getAttachment("image")
-        const messages = []
+        const messages: ChatCompletionMessages[] = []
         
         if(image && !ctx.client.config.features?.image_in_prompt) return ctx.error({error: "Images in prompts are disabled"})
-        if(image && (typeof model === "string" || !model?.supports_images)) return ctx.error({error: "This model doesn't support images"})
+        if(image && !model_configuration.images?.supported) return ctx.error({error: "This model doesn't support images"})
         
         let modalinteraction;
         if(modal) {
@@ -65,18 +72,22 @@ export default class extends Command {
         
         const {count} = ctx.client.tokenizeString(message)
 
-        if(count > (ctx.client.config.generation_parameters?.max_input_tokens_per_model?.[model_name] ?? 4096)) return ctx.error({error: "Please shorten your prompt"})
+        if(count > (model_configuration.max_model_tokens ?? 4096)) return ctx.error({error: "Please shorten your prompt"})
 
         if(ctx.interaction.channel?.isThread()) {
-            const data = await ctx.database.query<ChatData>("SELECT * FROM chats WHERE id=$1", [ctx.interaction.channelId]).catch(console.error)
-            if(!data?.rowCount) return ctx.error({error: "Unable to find conversation.\nUse this command in a non-thread channel to start a new conversation."})
-            if(!ctx.client.config.allow_collaboration && data.rows[0]!.user_id !== ctx.interaction.user.id) return ctx.error({error: "Only the initial user can use this command in this thread."})
+            const data = await ctx.database.query<ChatData>("SELECT * FROM chats WHERE id=$1", [ctx.interaction.channelId]).then(res => res.rows[0]).catch(console.error)
+            if(!data) return ctx.error({error: "Unable to find conversation.\nUse this command in a non-thread channel to start a new conversation."})
+            if(!ctx.client.config.allow_collaboration && data.user_id !== ctx.interaction.user.id) return ctx.error({error: "Only the initial user can use this command in this thread."})
 
-            messages.push(...data.rows[0]!.messages)
+            messages.push(...data.messages)
             messages.push({
                 role: "user",
                 content: message
-            })
+            } as ChatCompletionMessages)
+
+            model_configuration_name = data.model_configuration
+            model_configuration = ctx.client.config.models?.[model_configuration_name]
+            if(!model_configuration) return ctx.error({error: "The model configuration for this thread is unavailable"})
 
             if(ctx.client.config.max_thread_followup_length && messages.filter(m => m.role === "user").length > ctx.client.config.max_thread_followup_length) return ctx.error({error: "Max length of this conversation reached"})
 
@@ -84,17 +95,8 @@ export default class extends Command {
             if(ctx.client.cache.has(ctx.interaction.channelId)) return ctx.error({error: "Somebody else is currently generating an answer for this thread. Please wait until they are finished"})
 
             ctx.client.cache.set(ctx.interaction.channelId, true, 1000 * 60 * 15)
-            
-            const override: {model?: string, base_url?: string, env_token_name?: string} = {}
-            if(typeof model === "string") {
-                override.model = model
-            } else {
-                override.model = model?.name
-                override.base_url = model?.base_url
-                override.env_token_name = model?.env_token_name
-            }
 
-            const ai_data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, override).catch(console.error)
+            const ai_data = await ctx.client.requestChatCompletion(messages, model_configuration, ctx.interaction.user.id, ctx.database).catch(console.error)
             if(!ai_data) {
                 ctx.error({error: "Something went wrong"})
                 ctx.client.cache.delete(ctx.interaction.channelId)
@@ -118,7 +120,7 @@ export default class extends Command {
                     },
                     description: ai_data.choices[0]?.message.content?.trim(),
                     color: Colors.Blue,
-                    footer: {text: `This text has been generated by OpenAIs Chat Completion API (${ai_data.model})`}
+                    footer: {text: `This text has been generated by AI (${model_configuration_name})`}
                 })
             ]
             
@@ -138,7 +140,7 @@ export default class extends Command {
 
             messages.push({
                 role: "assistant",
-                content: ai_data.choices[0]?.message.content?.trim()
+                content: ai_data.choices[0]?.message.content?.trim()!
             })
             
             await ctx.database.query("UPDATE chats SET messages=$2 WHERE id=$1 RETURNING *", [ctx.interaction.channelId, messages]).catch(console.error)
@@ -152,6 +154,11 @@ export default class extends Command {
 **Prompt Tokens** ${ai_data.usage.prompt_tokens}
 **Completion Tokens** ${ai_data.usage.completion_tokens}
 **Total Tokens** ${ai_data.usage.total_tokens}
+
+**Model Configuration**
+\`\`\`json
+${JSON.stringify(model_configuration, null, 2)}
+\`\`\`
 
 **System Instruction**
 ${system_instruction ?? "NONE"}`,
@@ -177,7 +184,7 @@ ${system_instruction ?? "NONE"}`,
                     type: "image_url" as const,
                     image_url: {
                         url: image.url,
-                        detail: ctx.client.config.generation_parameters?.image_detail || "low"
+                        detail: model_configuration?.images?.supported ? model_configuration.images.detail || "auto" : "auto"
                     }
                 }
             ]
@@ -201,17 +208,8 @@ ${system_instruction ?? "NONE"}`,
         if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
         await reply.react("⌛")
-        
-        const override: {model?: string, base_url?: string, env_token_name?: string} = {}
-        if(typeof model === "string") {
-            override.model = model
-        } else {
-            override.model = model?.name
-            override.base_url = model?.base_url
-            override.env_token_name = model?.env_token_name
-        }
 
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, override).catch(console.error)
+        const data = await ctx.client.requestChatCompletion(messages, model_configuration, ctx.interaction.user.id, ctx.database).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
@@ -241,7 +239,7 @@ ${system_instruction ?? "NONE"}`,
                     },
                     description,
                     color: Colors.Green,
-                    footer: {text: `This text has been generated by OpenAIs Chat Completion API (${data.model})`}
+                    footer: {text: `This text has been generated by AI (${model_configuration_name})`}
                 })
     
                 payload = {embeds: [embed]}
@@ -259,7 +257,7 @@ ${system_instruction ?? "NONE"}`,
 
         await thread.members.add(ctx.interaction.user)
 
-        const db_save = await ctx.database.query('INSERT INTO chats (id, user_id, messages) VALUES ($1, $2, $3) RETURNING *', [
+        const db_save = await ctx.database.query('INSERT INTO chats (id, user_id, messages, model_configuration) VALUES ($1, $2, $3, $4) RETURNING *', [
             thread.id,
             ctx.interaction.user.id,
             [
@@ -268,7 +266,8 @@ ${system_instruction ?? "NONE"}`,
                     role: "assistant",
                     content: data.choices[0]?.message.content?.trim()
                 }
-            ]
+            ],
+            model_configuration_name
         ]).catch(console.error)
 
         const thread_msg = await thread.send({
@@ -279,7 +278,7 @@ ${system_instruction ?? "NONE"}`,
                     },
                     description: data.choices[0]?.message.content?.trim(),
                     color: Colors.Blue,
-                    footer: {text: `This text has been generated by OpenAIs Chat Completion API (${data.model})`}
+                    footer: {text: `This text has been generated by AI (${model_configuration_name})`}
                 }),
                 new EmbedBuilder({
                     description: !!db_save?.rowCount ? `To create a response to ChatGPTs response use ${await ctx.client.getSlashCommandTag("chat thread")}` : "Unable to save chat for followup",
@@ -307,6 +306,11 @@ ${system_instruction ?? "NONE"}`,
 **Prompt Tokens** ${data.usage.prompt_tokens}
 **Completion Tokens** ${data.usage.completion_tokens}
 **Total Tokens** ${data.usage.total_tokens}
+
+**Model Configuration**
+\`\`\`json
+${JSON.stringify(model_configuration, null, 2)}
+\`\`\`
 
 **System Instruction**
 ${system_instruction ?? "NONE"}`,

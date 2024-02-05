@@ -1,5 +1,15 @@
 # Changelog
 
+## V2.0.0
+
+THIS UPDATE IS NOT BACKWARDS COMPATIBLE WITH THE PREVIOUS VERSIONS.  
+FOLLOW THE [UPDATE INSTRUCTIONS](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/update_instructions.md) TO UPDATE PROPERLY.
+
+- Added model configurations:
+ - Model configurations have a unique name which is used to reference that configuration
+ - A configuration consists of default parameters and model settings like how to reach the model (base url, model name, token)
+ - External models can be used easily
+
 ## V1.8.1
 
 - Add the ability to use different API keys per selectable model

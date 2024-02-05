@@ -84,23 +84,34 @@ export interface OpenAIChatCompletionResponse {
             role: "assistant" | "bot" | "user",
             content: string
         },
-        finish_reason: string
+        finish_reason: string,
+        logprobs?: {
+            content: {
+                token: string,
+                logprob: number,
+                bytes: string[],
+                top_logprobs: {
+                    token: string,
+                    logprob: number,
+                    bytes: string[],
+                }[]
+            }[]
+        }
     }[],
     usage: {
         prompt_tokens: number,
         completion_tokens: number,
         total_tokens: number
-    }
+    },
+    system_fingerprint: string
 }
 
 export interface ChatData {
     index: number,
     id: string,
     user_id: string,
-    messages: {
-        role: string,
-        content: string
-    }[],
+    messages: ChatCompletionMessages[],
+    model_configuration: string,
     created_at: Date
 }
 
@@ -119,9 +130,7 @@ export interface Config {
     staff_roles?: string[],
     staff_users?: string[],
     blacklist_roles?: string[],
-    default_model?: string,
     default_dalle_model?: string,
-    selectable_models?: (string | {name: string, base_url?: string, supports_images?: boolean, env_token_name?: string})[],
     staff_can_bypass_feature_restrictions?: boolean,
     dev_config?: {
         enabled?: boolean,
@@ -133,11 +142,10 @@ export interface Config {
     allow_collaboration?: boolean
     hey_gpt?: {
         enabled?: boolean,
-        moderate_prompts?: boolean,
         model?: string,
         processing_emoji?: string,
         system_instruction?: string,
-        activation_phrases?: string[] | {phrase: string, system_instruction: string, model?: string, allow_images?: boolean, image_detail?: string}[],
+        activation_phrases?: string[] | {phrase: string, system_instruction: string, model?: string, allow_images?: boolean}[],
     },
     generate_image?: {
         quality?: "standard" | "hd",
@@ -148,16 +156,10 @@ export interface Config {
         allow_collaboration?: boolean,
         assistant_ids?: string[]
     }
-    generation_parameters?: {
-        moderate_prompts?: boolean,
+    generation_settings?: {
         default_system_instruction?: string,
-        temperature?: number,
-        top_p?: number,
-        presence_penalty?: number,
-        frequency_penalty?: number,
-        image_detail?: string,
-        max_completion_tokens_per_model?: Record<string, number>,
-        max_input_tokens_per_model?: Record<string, number>
+        default_model?: string,
+        selectable_models?: string[],
     },
     selectable_system_instructions?: {
         name?: string,
@@ -182,16 +184,43 @@ export interface Config {
         user_leaderboard?: boolean
     },
     leaderboard_amount_users?: number,
-    englishify_system_instruction?: string,
     auto_create_commands?: boolean,
     message_context_actions?: {
         name?: string,
-        system_instruction?: string
+        system_instruction?: string,
+        model: string
     }[],
-    costs?: Record<string, {
-        prompt?: number,
-        completion?: number
-    }>
+    models?: Record<string, ModelConfiguration>
+}
+
+export interface ModelConfiguration {
+    model: string,
+    base_url?: string,
+    env_token_name?: string
+    images?: {supported: false} | {supported: true, detail?: "high" | "low" | "auto"},
+    max_completion_tokens?: number,
+    max_model_tokens?: number,
+    cost?: ModelCost,
+    moderation?: {
+        enabled?: boolean
+    },
+    defaults?: {
+        frequency_penalty?: number,
+        logit_bias?: Record<string, number>,
+        logprobs?: boolean,
+        top_logprobs?: number,
+        presence_penalty?: number,
+        response_format?: {type?: "text" | "json_object"},
+        seed?: number,
+        stop?: string | string[],
+        temperature?: number,
+        top_p?: number
+    }
+}
+
+export interface ModelCost {
+    prompt?: number,
+    completion?: number
 }
 
 export interface DallE3GenerationOptions {
@@ -330,4 +359,45 @@ export interface AssistantRunData extends Required<AssistantRunPayload> {
     started_at?: number,
     failed_at?: number,
     completed_at?: number,
+}
+
+export type ChatCompletionMessages = ChatCompletionSystemMessage | ChatCompletionUserMessage | ChatCompletionAssistantMessage
+
+export interface ChatCompletionBaseMessage {
+    role: "assistant" | "system" | "user",
+    name?: string,
+}
+
+export interface ChatCompletionSystemMessage extends ChatCompletionBaseMessage {
+    role: "system",
+    content: string
+}
+
+export interface ChatCompletionUserMessage extends ChatCompletionBaseMessage {
+    role: "user",
+    content: string | (
+        {
+            type: "text",
+            text: string
+        } | {
+            type: "image_url",
+            image_url: {
+                url: string,
+                detail: "low" | "high" | "auto"
+            }
+        }
+    )[]
+}
+
+export interface ChatCompletionAssistantMessage extends ChatCompletionBaseMessage {
+    role: "assistant",
+    content?: string,
+    tool_calls?: {
+        id: string,
+        type: "function",
+        function: {
+            name: string,
+            arguments: string
+        }
+    }[]
 }

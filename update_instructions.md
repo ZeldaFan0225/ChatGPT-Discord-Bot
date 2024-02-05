@@ -1,5 +1,12 @@
 # Update Instructions
 
+# V1.8.X => V2.0.0
+
+- Update your configuration file to match [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md) or [template.config.json](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/template.config.json).
+- Run `ALTER TABLE chats ADD model_configuration VARCHAR(1000) NOT NULL;` in your database
+
+Look at [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md) for information on what the key does
+
 # 1.7.0 => 1.8.0
 
 - Add the following keys to your `config.json` file:
