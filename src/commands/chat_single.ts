@@ -1,7 +1,7 @@
 import { AttachmentBuilder, ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions, SlashCommandAttachmentOption, SlashCommandBooleanOption, SlashCommandBuilder, SlashCommandStringOption } from "discord.js";
 import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
-import { Config } from "../types";
+import { ChatCompletionMessages, Config } from "../types";
 import { readFileSync } from "fs";
 import { AutocompleteContext } from "../classes/autocompleteContext";
 
@@ -33,18 +33,20 @@ const command_data = new SlashCommandBuilder()
                     .setAutocomplete(true)
                 )
 
-                if(config.selectable_models?.length) {
+                if(config.generation_settings?.selectable_models?.length) {
                     o.addStringOption(
                         new SlashCommandStringOption()
                         .setName("model")
                         .setDescription("The model to use for this request")
                         .setRequired(false)
                         .addChoices(
-                            ...config.selectable_models.map(m => {
-                                return typeof m === "string" ? {value: m, name: m} : {value: m.name, name: m.name}
-                            })
+                            ...config.generation_settings?.selectable_models.map(m => ({value: m, name: m}))
                         )
                     )
+                }
+
+                if(Object.values(config.models ?? {}).some(m => m.images?.supported)) {
+                    o
                     .addAttachmentOption(
                         new SlashCommandAttachmentOption()
                         .setName("image")
@@ -85,18 +87,20 @@ const command_data = new SlashCommandBuilder()
                     .setAutocomplete(true)
                 )
 
-                if(config.selectable_models?.length) {
+                if(config.generation_settings?.selectable_models?.length) {
                     o.addStringOption(
                         new SlashCommandStringOption()
                         .setName("model")
                         .setDescription("The model to use for this request")
                         .setRequired(false)
                         .addChoices(
-                            ...config.selectable_models.map(m => {
-                                return typeof m === "string" ? {value: m, name: m} : {value: m.name, name: m.name}
-                            })
+                            ...config.generation_settings?.selectable_models.map(m => ({value: m, name: m}))
                         )
                     )
+                }
+
+                if(Object.values(config.models ?? {}).some(m => m.images?.supported)) {
+                    o
                     .addAttachmentOption(
                         new SlashCommandAttachmentOption()
                         .setName("image")
@@ -149,19 +153,28 @@ export default class extends Command {
         if(!ctx.client.config.features?.chat_single && !ctx.can_staff_bypass) return ctx.error({error: "This command is disabled"})
         if(!await ctx.client.checkConsent(ctx.interaction.user.id, ctx.database)) return ctx.error({error: `You need to agree to our ${await ctx.client.getSlashCommandTag("terms")} before using this command`, codeblock: false})
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
+        
         let message = ctx.interaction.options.getString("message", true)
         const modal = ctx.interaction.options.getBoolean("form_input") ?? false
+
+        const model_configuration_name = ctx.interaction.options.getString("model") ?? ctx.client.config.generation_settings?.default_model
+        if(!model_configuration_name) return ctx.error({error: "No model found"})
+        const model_configuration = ctx.client.config.models?.[model_configuration_name]
+        if(!model_configuration) return ctx.error({error: "No model found"})
+
         const system_instruction_name = ctx.interaction.options.getString("system_instruction") ?? "default"
-        const system_instruction = system_instruction_name === "default" ? ctx.client.config.generation_parameters?.default_system_instruction : ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name.toLowerCase())?.system_instruction
-        if(system_instruction_name !== "default" && !system_instruction) return ctx.error({error: "Unable to find system instruction"})
-        const model_name = ctx.interaction.options.getString("model") ?? ctx.client.config.default_model ?? "gpt-3.5-turbo"
-        const model = ctx.client.config.selectable_models?.find(m => typeof m === "string" ? m === model_name : m.name === model_name)
+        const system_instruction = system_instruction_name === "default" ? 
+            ctx.client.config.generation_settings?.default_system_instruction :
+            ctx.client.config.selectable_system_instructions?.find(i => i.name?.toLowerCase() === system_instruction_name?.toLowerCase())?.system_instruction ?? ctx.client.config.generation_settings?.default_system_instruction
+        
+        if(!system_instruction && system_instruction_name !== "default") return ctx.error({error: "Unable to find system instruction"})
+    
         const image = ctx.interaction.options.getAttachment("image")
 
         if(image && !ctx.client.config.features?.image_in_prompt) return ctx.error({error: "Images in prompts are disabled"})
-        if(image && (typeof model === "string" || !model?.supports_images)) return ctx.error({error: "This model doesn't support images"})
+        if(image && !model_configuration.images?.supported) return ctx.error({error: "This model doesn't support images"})
 
-        const messages = []
+        const messages: ChatCompletionMessages[] = []
 
         let modalinteraction;
         if(modal) {
@@ -192,7 +205,7 @@ export default class extends Command {
 
         const {count} = ctx.client.tokenizeString(message)
 
-        if(count > (ctx.client.config.generation_parameters?.max_input_tokens_per_model?.[model_name] ?? 4096)) return ctx.error({error: "Please shorten your prompt"})
+        if(count > (model_configuration.max_model_tokens ?? 4096)) return ctx.error({error: "Please shorten your prompt"})
 
         if(system_instruction?.length) messages.push({role: "system", content: system_instruction})
 
@@ -200,34 +213,26 @@ export default class extends Command {
             role: "user",
             content: !image ? message : [
                 {
-                    type: "text" as const,
+                    type: "text",
                     text: message
                 },
                 {
-                    type: "image_url" as const,
+                    type: "image_url",
                     image_url: {
                         url: image.url,
-                        detail: ctx.client.config.generation_parameters?.image_detail || "low"
+                        detail: model_configuration?.images?.supported ? model_configuration.images.detail || "auto" : "auto"
                     }
                 }
             ]
         })
 
-        if(await ctx.client.checkIfPromptGetsFlagged(message)) return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
+        if(model_configuration.moderation?.enabled && await ctx.client.checkIfPromptGetsFlagged(message))
+            return ctx.error({error: "Your message has been flagged to be violating OpenAIs TOS"})
 
-        const override: {model?: string, base_url?: string, env_token_name?: string} = {}
-        if(typeof model === "string") {
-            override.model = model
-        } else {
-            override.model = model?.name
-            override.base_url = model?.base_url
-            override.env_token_name = model?.env_token_name
-        }
-
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, override).catch(console.error)
+        const data = await ctx.client.requestChatCompletion(messages, model_configuration, ctx.interaction.user.id, ctx.database).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
 
-        const description = `${message}\n\n**ChatGPT (${system_instruction_name}):**\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}`
+        const description = `${message}\n\n**AI ChatBot (${system_instruction_name}):**\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}`
         let payload: InteractionEditReplyOptions = {}
 
         if((ctx.client.config.features?.delete_button || ctx.client.config.features?.regenerate_button || ctx.client.config.features?.chat_thread) || ctx.can_staff_bypass) {
@@ -257,12 +262,12 @@ export default class extends Command {
                 image: image ? {url: `attachment://${image?.name}`} : undefined,
                 description,
                 color: Colors.Green,
-                footer: {text: `This text has been generated by OpenAIs Chat Completion API (${data.model})`}
+                footer: {text: `This text has been generated by AI (${model_configuration_name})`}
             })
 
             payload.embeds = [embed]
         } else {
-            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.username}:\n${message}\n\nChatGPT (${system_instruction_name}):\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API`), {name: `${data.id}.txt`})
+            const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.username}:\n${message}\n\nAI ChatBot (${system_instruction_name}):\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API`), {name: `${data.id}.txt`})
             payload.content = "Result attached below"
             payload.files.push(attachment)
         }
@@ -278,6 +283,11 @@ export default class extends Command {
 **Prompt Tokens** ${data.usage.prompt_tokens}
 **Completion Tokens** ${data.usage.completion_tokens}
 **Total Tokens** ${data.usage.total_tokens}
+
+**Model Configuration**
+\`\`\`json
+${JSON.stringify(model_configuration, null, 2)}
+\`\`\`
 
 **System Instruction**
 ${system_instruction ?? "NONE"}`,

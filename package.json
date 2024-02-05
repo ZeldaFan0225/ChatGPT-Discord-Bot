@@ -1,6 +1,6 @@
 {
   "name": "chatgpt_discord_bot",
-  "version": "1.8.1",
+  "version": "2.0.0",
   "description": "",
   "main": "dist/index.js",
   "engines": {
@@ -29,6 +29,7 @@
     "pg": "^8.9.0"
   },
   "devDependencies": {
+    "@types/node": "^20.11.16",
     "@types/pg": "^8.6.6",
     "typescript": "^5.2.2"
   }

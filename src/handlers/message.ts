@@ -1,6 +1,7 @@
 import { GuildMember, Message } from "discord.js";
 import { Pool } from "pg";
 import { ChatGPTBotClient } from "../classes/client";
+import { ChatCompletionMessages } from "../types";
 
 export async function handleMessage(message: Message, client: ChatGPTBotClient, database: Pool): Promise<any> {
     if(message.channel.isThread() && !message.author.bot) {
@@ -43,18 +44,20 @@ async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool
     if(!await client.checkConsent(message.author.id, database)) return error(message, `You need to agree to our ${await client.getSlashCommandTag("terms")} before using this action`);
     if(!client.is_staff(message.member) && client.config.global_user_cooldown && client.cooldown.has(message.member.id)) return error(message, "You are currently on cooldown")
     if(!client.is_staff(message.member) && (message.member.roles.cache.some(r => client.config.blacklist_roles?.includes(r.id)) || await client.checkBlacklist(message.member.id, database))) return;
-
-    if(client.config.hey_gpt.moderate_prompts) {
-        const flagged = await client.checkIfPromptGetsFlagged(message.content)
-        if(flagged) return;
-    }
     
     await message.react(client.config.hey_gpt.processing_emoji || "⏳")
 
     const system_instruction = activation_data?.system_instruction || client.config.hey_gpt.system_instruction
+    if(!activation_data?.model && !client.config.hey_gpt.model) return;
+    const model_configuration = client.config.models?.[activation_data?.model! || client.config.hey_gpt.model!]
+    if(!model_configuration) return;
 
+    if(model_configuration.moderation?.enabled) {
+        const flagged = await client.checkIfPromptGetsFlagged(message.content)
+        if(flagged) return;
+    }
 
-    const messages: {role: string, content: any}[] = [
+    const messages: ChatCompletionMessages[] = [
         {
             role: "system",
             content: system_instruction || "Hey GPT what's the time?"
@@ -79,7 +82,7 @@ async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool
                     type: "image_url" as const,
                     image_url: {
                         url: i.url,
-                        detail: activation_data.image_detail || "low"
+                        detail: model_configuration?.images?.supported ? model_configuration.images.detail || "auto" : "auto"
                     },
                 }))
             ]
@@ -91,9 +94,7 @@ async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool
         })
     }
 
-    const data = await client.requestChatCompletion(messages, message.author.id, database, {
-        model: activation_data?.model || client.config.hey_gpt.model
-    }).catch(console.error)
+    const data = await client.requestChatCompletion(messages, model_configuration, message.author.id, database).catch(console.error)
     
     if(!data) return message.reactions.cache.get(client.config.hey_gpt.processing_emoji || "⏳")?.users.remove(client.user!).catch(console.error)
 

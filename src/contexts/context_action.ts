@@ -1,6 +1,7 @@
 import { APIButtonComponent, ApplicationCommandType, AttachmentBuilder, ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions } from "discord.js";
 import { Context } from "../classes/context";
 import { ContextContext } from "../classes/contextContext";
+import { ChatCompletionMessages } from "../types";
 
 
 const delete_button = new ButtonBuilder({
@@ -20,10 +21,13 @@ export default class extends Context {
     override async run(ctx: ContextContext<ApplicationCommandType.Message>): Promise<any> {
         if(!ctx.is_staff && ctx.client.config.global_user_cooldown && ctx.client.cooldown.has(ctx.interaction.user.id)) return ctx.error({error: "You are currently on cooldown"})
         if(!ctx.interaction.targetMessage.content?.length) return ctx.error({error: "This message does not have any content"})
-        const messages = []
+        const messages: ChatCompletionMessages[] = []
 
         const action = ctx.client.config.message_context_actions?.find(a => a.name === ctx.interaction.commandName)
         if(!action) return ctx.error({error: "Unable to find action"})
+
+        const model_configuration = ctx.client.config.models?.[action.model]
+        if(!model_configuration) return ctx.error({error: "Model configuration not found"})
 
         if(action.system_instruction) messages.push({role: "system", content: action.system_instruction})
 
@@ -36,9 +40,7 @@ export default class extends Context {
         
         if(await ctx.client.checkIfPromptGetsFlagged(ctx.interaction.targetMessage.content)) return ctx.error({error: "The messages content has been flagged to be violating OpenAIs TOS."})
         
-        const data = await ctx.client.requestChatCompletion(messages, ctx.interaction.user.id, ctx.database, {
-            temperature: 0
-        }).catch(console.error)
+        const data = await ctx.client.requestChatCompletion(messages, model_configuration, ctx.interaction.user.id, ctx.database).catch(console.error)
         if(!data) return ctx.error({error: "Something went wrong"})
         
         const description = `**ChatGPT:**\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}`
@@ -91,7 +93,12 @@ export default class extends Context {
                 
 **Prompt Tokens** ${data.usage.prompt_tokens}
 **Completion Tokens** ${data.usage.completion_tokens}
-**Total Tokens** ${data.usage.total_tokens}`,
+**Total Tokens** ${data.usage.total_tokens}
+
+**Model Configuration**
+\`\`\`json
+${JSON.stringify(model_configuration, null, 2)}
+\`\`\``,
                 color: Colors.Red
             })
             await res.reply({

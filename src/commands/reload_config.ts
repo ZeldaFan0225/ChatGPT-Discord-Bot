@@ -18,7 +18,7 @@ export default class extends Command {
     }
 
     override async run(ctx: CommandContext): Promise<any> {
-        ctx.client.loadConfig()
+        ctx.client.reloadConfig()
         
         const configurable_msg_cmds = ctx.client.config.message_context_actions?.map((a, i) => 
             new ContextMenuCommandBuilder()

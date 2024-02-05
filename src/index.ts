@@ -39,8 +39,11 @@ if(client.config.logs?.enabled) {
 
 client.on("ready", async () => {
     await connection.connect().then(async () => {
+        // TODO remove after testing
+        // await connection.query("DROP TABLE chats")
+        
         await connection.query("CREATE TABLE IF NOT EXISTS user_data (index SERIAL, user_id VARCHAR(100) PRIMARY KEY, consent bool DEFAULT true, tokens int NOT NULL DEFAULT 0, cost double precision default 0, blacklisted bool DEFAULT false)")
-        await connection.query("CREATE TABLE IF NOT EXISTS chats (index SERIAL, id VARCHAR(100) PRIMARY KEY, user_id VARCHAR(100) NOT NULL, messages JSON[] DEFAULT '{}', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        await connection.query("CREATE TABLE IF NOT EXISTS chats (index SERIAL, id VARCHAR(100) PRIMARY KEY, user_id VARCHAR(100) NOT NULL, messages JSON[] DEFAULT '{}', model_configuration VARCHAR(1000) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
         await connection.query("CREATE TABLE IF NOT EXISTS assistant_threads (index SERIAL, id text PRIMARY KEY, channel_id text NOT NULL, owner_id text NOT NULL)")
 
         console.log("Tables created")

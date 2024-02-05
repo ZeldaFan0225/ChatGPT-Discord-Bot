@@ -9,17 +9,18 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     "staff_roles": The roles which your staff have. This will bypass filters and cooldowns (ARRAY OF ROLE IDS),
     "staff_users": The staff users who don't have any of the staff roles. This will bypass filters and cooldowns (ARRAY OF USER IDS),
     "blacklist_roles": Blacklist users based on their roles. Staff have full bypass (ARRAY OF ROLE IDS),
-    "default_model": The default model to use. Model must support chat completion (STRING) *8,
     "default_dalle_model": The default dalle model to use in /create_image *1 *2,
-    "selectable_models": A list of models the users can select from (ARRAY OF CHAT COMPLETION MODEL NAMES) *1 *4 *12 *14
     "staff_can_bypass_feature_restrictions": When set to true staff won't be restricted by features turned off (BOOLEAN) *4,
-    "dev": Whether this is a development instance or not (BOOLEAN) *3,
+    "dev_config": {
+        "enabled": Whether this is a development instance or not (BOOLEAN) *3,
+        "debug_discord_messages": Show debug messages in discord,
+        "debug_logs": Show debug messages in the terminal,
+    },
     "global_user_cooldown": The time until a user can send a new request in milliseconds (NUMBER),
     "max_thread_folowup_length": The amount of followup prompts a user can send in a thread (NUMBER),
     "allow_collaboration": When set to true anybody can use /chat thread in each others threads (BOOLEAN),
     "hey_gpt": {
         "enabled": Whether this is enabled or not (BOOLEAN),
-        "moderate_prompts": Whether to ignore commands which violate OpenAIs usage policies (BOOLEAN),
         "model": The model to use for this action (STRING),
         "processing_emoji": The emoji to use for showing the bot is working (unicode or emoji ID),
         "system_instruction": The system instruction for this action (STRING),
@@ -34,15 +35,10 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
         "allow_collaboration": When enabled all users who have access to the thread can interact with the assistant (BOOLEAN),
         "assistant_ids": Array of assistant IDs that can be used in the bot *1 (ARRAY OF STRINGS)
     },
-    "generation_parameters": {
-        "moderate_prompts": Whether to use openais moderation endpoint before sending the generation request (BOOLEAN),
+    "generation_settings": {
+        "default_model": The default model to use. Model must support chat completion (STRING) *8,
         "default_system_instruction": The system instruction for the chatbot (STRING) *2,
-        "temperature": The temperature for the request (NUMBER) *1,
-        "top_p": The top_t for the request (NUMBER) *1,
-        "presence_penalty": The presence_penalty for the request (NUMBER) *1,
-        "frequency_penalty": The frequency_penalty for the request (NUMBER) *1,
-        "max_completion_tokens_per_model": An Object with the model name as the key and the max completion tokens as its value *4 *9 *10
-        "max_input_tokens_per_model": An Object with the model name as the key and the max input tokens as its value *4 *9
+        "selectable_models": A list of models the users can select from (ARRAY OF CHAT COMPLETION MODEL NAMES) *1 *4 *12 *14
     },
     "selectable_system_instructions": An array of selectable system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
     "logs": {
@@ -65,12 +61,38 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
     },
     "leaderboard_amount_users": How many users to display on the leaderboard (NUMBER),
     "auto_create_commands": When set to true the commands will be automatically created (BOOLEAN) *11,
-    "message_context_actions": An Array of message contexts with system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name AND system_instruction) *4,
-    "costs": {
+    "message_context_actions": An Array of message contexts with system instructions (ARRAY WITH OBJECTS WITH THE PROPERTIES name, model (*15) AND system_instruction) *4,
+    "models": {
         "MODEL NAME": {
-            "prompt": The cost for prompt tokens,
-            "completion": The cost for completion tokens
-        }
+            "model": The configurations model name (STRING, REQUIRED),
+            "base_url": The base url of the API *1.
+            "images": {
+                "supported": Whether images are supported for this model *1,
+                "detail": "low", "high" or "auto" - The *1,
+            },
+            "moderation": {
+                "enabled": Whether to use OpenAI Moderation on the prompts,
+            },
+            "env_token_name": The key of the token in the .env file,
+            "max_completions_token": The max amount of tokens to generate *10,
+            "max_tokens": The max tokens for this model *1,
+            "cost": {
+                "prompt": The cost for prompts *8,
+                "completion": The cost for completions *8
+            },
+            "defaults": {
+                "frequency_penalty": The default value for this property *1,
+                "logit_bias": The default value for this property *1,
+                "logprobs": The default value for this property *1,
+                "top_logprobs": The default value for this property *1,
+                "presence_penalty": The default value for this property *1,
+                "response_format": The default value for this property *1,
+                "seed": The default value for this property *1,
+                "stop": The default value for this property *1,
+                "temperature": The default value for this property *1,
+                "top_p": The default value for this property *1
+            }
+        } *16
     }
 }
 ```
@@ -87,5 +109,7 @@ To see an example look at our [template.config.json](https://github.com/ZeldaFan
 `*10` It is recommended to set this value to `-1` to avoid errors.  
 `*11` When set to false changes in the config file will not be applied to commands on startup, only when using /reload_config THE DEFAULT IS TRUE  
 `*12` For better configuration instead of the name the following can be given: `{name: string, base_url?: string, supports_images?: boolean, env_token_name?: string}`  
-`*13` For better configuration instead of the activation phrase the following can be given: `{phrase: string, system_instruction: string, model?: string, allow_images?: boolean, image_detail?: "high" | "low"}`
+`*13` For better configuration instead of the activation phrase the following can be given: `{phrase: string, system_instruction: string, model: string *15, allow_images?: boolean}`
 `*14` When providing `env_token_name` you have to add a auth key to the .env with the exact name of the `env_token_name` similar to the `OPENAI_TOKEN` key
+`*15` This name has to be a key in `models`,
+`*16` Here you can set up external models as well by providing the model name, base url and token. The API is required to be compatible with OpenAI API
