@@ -3,6 +3,8 @@
 Here you can see an explanation of what which option does.  
 To see an example look at our [template.config.json](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/template.config.json).
 
+For your model configurations in `models` you can take the [example_model_configurations.json](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/example_model_configurations.json) as an example. The example model configurations also include up to date pricing (as of 7th February 2024), the correct context sizes and other settings.
+
 ```
 {
     "owner_ids": The ids of the owners discord account(s),
