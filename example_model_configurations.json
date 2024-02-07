@@ -1,0 +1,209 @@
+{
+    "models": {
+        "gpt-3.5-turbo": {
+            "model": "gpt-3.5-turbo",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 4096,
+            "cost": {
+                "prompt": 0.0015,
+                "completion": 0.002
+            }
+        },
+        "gpt-3.5-turbo-0125": {
+            "model": "gpt-3.5-turbo-0125",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 16385,
+            "cost": {
+                "prompt": 0.0005,
+                "completion": 0.0015
+            }
+        },
+        "gpt-3.5-turbo-1106": {
+            "model": "gpt-3.5-turbo-1106",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 16385,
+            "cost": {
+                "prompt": 0.001,
+                "completion": 0.002
+            }
+        },
+        "gpt-3.5-turbo-instruct": {
+            "model": "gpt-3.5-turbo-instruct",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 16385,
+            "cost": {
+                "prompt": 0.0015,
+                "completion": 0.002
+            }
+        },
+        "gpt-4-0125-preview": {
+            "model": "gpt-4-0125-preview",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 128000,
+            "cost": {
+                "prompt": 0.01,
+                "completion": 0.03
+            }
+        },
+        "gpt-4-turbo-preview": {
+            "model": "gpt-4-turbo-preview",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 128000,
+            "cost": {
+                "prompt": 0.01,
+                "completion": 0.03
+            }
+        },
+        "gpt-4-1106-preview": {
+            "model": "gpt-4-1106-preview",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 128000,
+            "cost": {
+                "prompt": 0.01,
+                "completion": 0.03
+            }
+        },
+        "gpt-4-vision-preview": {
+            "model": "gpt-4-0125-preview",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": true,
+                "detail": "auto"
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 128000,
+            "cost": {
+                "prompt": 0.01,
+                "completion": 0.03
+            }
+        },
+        "gpt-4": {
+            "model": "gpt-4",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 8192,
+            "cost": {
+                "prompt": 0.03,
+                "completion": 0.06
+            }
+        },
+        "gpt-4-0613": {
+            "model": "gpt-4",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 8192,
+            "cost": {
+                "prompt": 0.03,
+                "completion": 0.06
+            }
+        },
+        "gpt-4-32k": {
+            "model": "gpt-4",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 32768,
+            "cost": {
+                "prompt": 0.06,
+                "completion": 0.12
+            }
+        },
+        "gpt-4-32k-0613": {
+            "model": "gpt-4-0613",
+            "base_url": "https://api.openai.com/v1",
+            "images": {
+                "supported": false
+            },
+            "moderation": {
+                "enabled": true
+            },
+            "env_token_name": "OPENAI_TOKEN",
+            "max_completion_tokens": -1,
+            "max_tokens": 32768,
+            "cost": {
+                "prompt": 0.06,
+                "completion": 0.12
+            }
+        }
+    }
+}

@@ -47,7 +47,7 @@ If you want some inspiration on system instructions for the GPT model you can vi
   - creating a new postgres user (preferrably with password)
   - creating a new database
 6) fill out the `template.env` and rename it to `.env`   
-7) modify the [config.json](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/template.config.json) file (from step 4) to fit your needs (you can read about what which property does in [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md))  
+7) modify the [config.json](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/template.config.json) file (from step 4) to fit your needs (you can read about what which property does in [config.md](https://github.com/ZeldaFan0225/ChatGPT-Discord-Bot/blob/main/config.md))
 8) compile the code and start the process (this can be done by using `npm run deploy`)  
   
 Now if everything is set up it should start and give an output in the console.  
