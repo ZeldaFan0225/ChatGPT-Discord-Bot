@@ -23,6 +23,7 @@ For your model configurations in `models` you can take the [example_model_config
     "allow_collaboration": When set to true anybody can use /chat thread in each others threads (BOOLEAN),
     "hey_gpt": {
         "enabled": Whether this is enabled or not (BOOLEAN),
+        "context_depth": The depth of previously messages which will be used as context (NUMBER) *17,
         "model": The model to use for this action (STRING),
         "processing_emoji": The emoji to use for showing the bot is working (unicode or emoji ID),
         "system_instruction": The system instruction for this action (STRING),
@@ -115,3 +116,4 @@ For your model configurations in `models` you can take the [example_model_config
 `*14` When providing `env_token_name` you have to add a auth key to the .env with the exact name of the `env_token_name` similar to the `OPENAI_TOKEN` key
 `*15` This name has to be a key in `models`,
 `*16` Here you can set up external models as well by providing the model name, base url and token. The API is required to be compatible with OpenAI API
+`*17` The higher you set the number the slower the response will be generated. It is recommended to not go above a depth of 5

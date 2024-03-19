@@ -1,7 +1,7 @@
 import { GuildMember, Message } from "discord.js";
 import { Pool } from "pg";
 import { ChatGPTBotClient } from "../classes/client";
-import { ChatCompletionMessages } from "../types";
+import { ChatCompletionMessages, ModelConfiguration } from "../types";
 
 export async function handleMessage(message: Message, client: ChatGPTBotClient, database: Pool): Promise<any> {
     if(message.channel.isThread() && !message.author.bot) {
@@ -65,9 +65,11 @@ async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool
         {
             role: "user",
             content: `The current date and time is ${new Date().toUTCString()}. My Discord Username is "${message.member.displayName}".`
-        },
-        
+        }
     ]
+
+    // allow "replies"
+    messages.push(...await fetchPreviousMessages(message, client.config.hey_gpt.context_depth || 0, model_configuration))
 
     if(activation_data?.allow_images) {
         const images = message.attachments.filter(a => a.contentType?.includes("image"))
@@ -112,4 +114,36 @@ async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool
     }
     
     if(client.config.global_user_cooldown) client.cooldown.set(message.author.id, Date.now(), client.config.global_user_cooldown)
+}
+
+async function fetchPreviousMessages(message: Message, depth: number, model_configuration: ModelConfiguration): Promise<ChatCompletionMessages[]> {
+    if(depth <= 0) return []
+    if(!message.reference) return []
+    const referencedAssistantMessage = await message.fetchReference().catch(console.error)
+    if(!referencedAssistantMessage) return []
+    if(referencedAssistantMessage.author.id !== message.client.user?.id) return []
+    const referencedUserMessage = await referencedAssistantMessage.fetchReference().catch(console.error)
+    if(!referencedUserMessage) return []
+
+    const images = referencedUserMessage.attachments.filter(a => a.contentType?.includes("image"))
+    return [...(await fetchPreviousMessages(referencedUserMessage, depth - 1, model_configuration)),
+    {
+        role: "user",
+        content: [
+            {
+                type: "text" as const,
+                text: referencedUserMessage.content
+            },
+            ...images.map(i => ({
+                type: "image_url" as const,
+                image_url: {
+                    url: i.url,
+                    detail: model_configuration?.images?.supported ? model_configuration.images.detail || "auto" : "auto"
+                },
+            }))
+        ]
+    }, {
+        role: "assistant",
+        content: referencedAssistantMessage.content
+    }]
 }

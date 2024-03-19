@@ -142,6 +142,7 @@ export interface Config {
     allow_collaboration?: boolean
     hey_gpt?: {
         enabled?: boolean,
+        context_depth?: number,
         model?: string,
         processing_emoji?: string,
         system_instruction?: string,
