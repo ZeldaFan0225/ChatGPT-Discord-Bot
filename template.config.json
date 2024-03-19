@@ -101,7 +101,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 4096,
+            "max_model_tokens": 4096,
             "cost": {
                 "prompt": 0.0015,
                 "completion": 0.002
@@ -131,7 +131,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 128000,
+            "max_model_tokens": 128000,
             "cost": {
                 "prompt": 0.01,
                 "completion": 0.03
@@ -148,7 +148,7 @@
             },
             "env_token_name": "NON_OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 4096
+            "max_model_tokens": 4096
         }
     }
 }

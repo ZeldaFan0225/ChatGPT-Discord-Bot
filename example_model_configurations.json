@@ -11,7 +11,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 4096,
+            "max_model_tokens": 4096,
             "cost": {
                 "prompt": 0.0015,
                 "completion": 0.002
@@ -28,7 +28,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 16385,
+            "max_model_tokens": 16385,
             "cost": {
                 "prompt": 0.0005,
                 "completion": 0.0015
@@ -45,7 +45,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 16385,
+            "max_model_tokens": 16385,
             "cost": {
                 "prompt": 0.001,
                 "completion": 0.002
@@ -62,7 +62,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 16385,
+            "max_model_tokens": 16385,
             "cost": {
                 "prompt": 0.0015,
                 "completion": 0.002
@@ -79,7 +79,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 128000,
+            "max_model_tokens": 128000,
             "cost": {
                 "prompt": 0.01,
                 "completion": 0.03
@@ -96,7 +96,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 128000,
+            "max_model_tokens": 128000,
             "cost": {
                 "prompt": 0.01,
                 "completion": 0.03
@@ -113,7 +113,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 128000,
+            "max_model_tokens": 128000,
             "cost": {
                 "prompt": 0.01,
                 "completion": 0.03
@@ -131,7 +131,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 128000,
+            "max_model_tokens": 128000,
             "cost": {
                 "prompt": 0.01,
                 "completion": 0.03
@@ -148,7 +148,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 8192,
+            "max_model_tokens": 8192,
             "cost": {
                 "prompt": 0.03,
                 "completion": 0.06
@@ -165,7 +165,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 8192,
+            "max_model_tokens": 8192,
             "cost": {
                 "prompt": 0.03,
                 "completion": 0.06
@@ -182,7 +182,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 32768,
+            "max_model_tokens": 32768,
             "cost": {
                 "prompt": 0.06,
                 "completion": 0.12
@@ -199,7 +199,7 @@
             },
             "env_token_name": "OPENAI_TOKEN",
             "max_completion_tokens": -1,
-            "max_tokens": 32768,
+            "max_model_tokens": 32768,
             "cost": {
                 "prompt": 0.06,
                 "completion": 0.12
