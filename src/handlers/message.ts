@@ -36,7 +36,7 @@ async function error(message: Message, content: string) {
 
 async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool) {
     if(!message.member || !client.config.hey_gpt?.activation_phrases) return;
-    const phrases = (client.config.hey_gpt?.activation_phrases || []) as (string | {phrase: string;system_instruction: string; model?: string; allow_images?: boolean, image_detail?: string})[]
+    const phrases = (client.config.hey_gpt?.activation_phrases || []) as (string | {phrase: string; system_instruction?: string; model?: string; allow_images?: boolean, image_detail?: string})[]
     const activation_phrase = phrases.find(p => message.content.toLowerCase().startsWith((typeof p === "string" ? p : p.phrase).toLowerCase()))
     if(!activation_phrase) return;
     const activation_data = typeof activation_phrase === "string" ? undefined : activation_phrase
@@ -71,7 +71,7 @@ async function heyGPT(message: Message, client: ChatGPTBotClient, database: Pool
     // allow "replies"
     messages.push(...await fetchPreviousMessages(message, client.config.hey_gpt.context_depth || 0, model_configuration))
 
-    if(activation_data?.allow_images) {
+    if((activation_data?.allow_images !== undefined ? activation_data?.allow_images : client.config.hey_gpt.allow_images) && model_configuration.images?.supported) {
         const images = message.attachments.filter(a => a.contentType?.includes("image"))
         messages.push({
             role: "user",

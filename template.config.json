@@ -22,6 +22,7 @@
         "enabled": true,
         "context_depth": 3,
         "model": "GPT 3.5",
+        "allow_images": false,
         "processing_emoji": "1094321943517335642",
         "system_instruction": "You are a smart assistant and cannot break character, you will help users in a Discord chat in an easy and funny way and help as a smart assistant.",
         "activation_phrases": [
