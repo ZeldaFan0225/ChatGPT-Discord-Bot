@@ -1,4 +1,4 @@
-import { AttachmentBuilder, ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions, SlashCommandAttachmentOption, SlashCommandBooleanOption, SlashCommandBuilder, SlashCommandStringOption } from "discord.js";
+import { Attachment, AttachmentBuilder, ButtonBuilder, Colors, EmbedBuilder, InteractionEditReplyOptions, SlashCommandAttachmentOption, SlashCommandBooleanOption, SlashCommandBuilder, SlashCommandStringOption } from "discord.js";
 import { Command } from "../classes/command";
 import { CommandContext } from "../classes/commandContext";
 import { ChatCompletionMessages, Config } from "../types";
@@ -250,8 +250,9 @@ export default class extends Command {
 
         data.object
 
-        payload.files = []
-        if(image) payload.files.push(image)
+        const files: (AttachmentBuilder | Attachment)[] = []
+        payload.files = files
+        if(image) files.push(image)
 
         if(description.length < 4000) {
             const embed = new EmbedBuilder({
@@ -269,7 +270,7 @@ export default class extends Command {
         } else {
             const attachment = new AttachmentBuilder(Buffer.from(`${ctx.interaction.user.username}:\n${message}\n\nAI ChatBot (${system_instruction_name}):\n${data.choices[0]?.message.content?.trim() ?? "Hi there"}\n\nThis response has been generated using OpenAIs Chat Completion API`), {name: `${data.id}.txt`})
             payload.content = "Result attached below"
-            payload.files.push(attachment)
+            files.push(attachment)
         }
 
         if(ctx.client.config.global_user_cooldown) ctx.client.cooldown.set(ctx.interaction.user.id, Date.now(), ctx.client.config.global_user_cooldown)
