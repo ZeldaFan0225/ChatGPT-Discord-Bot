@@ -88,7 +88,8 @@ client.on("interactionCreate", async (interaction) => {
                     return await handleContexts(interaction, client, connection);
                 }
             }
-        };
+            break;
+        }
         case InteractionType.MessageComponent: {
 			return await handleComponents(interaction, client, connection);
         };
